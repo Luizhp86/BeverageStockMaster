@@ -2,8 +2,6 @@ package com.example.BeverageStockMaster.domain;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 @Entity
 public class Secao {
         @Id
@@ -14,19 +12,10 @@ public class Secao {
         private double capacidadeAtual;
         private double capacidadeMaxima;
 
+        @ManyToOne
+        private TipoBebida tipoBebida;
 
-        // Default constructor
-        public Secao() {}
-
-        // Constructor with arguments
-        public Secao(Long id, String nome, double capacidadeAtual, double capacidadeMaxima, List<Bebida> bebidas) {
-                this.id = id;
-                this.nome = nome;
-                this.capacidadeAtual = capacidadeAtual;
-                this.capacidadeMaxima = capacidadeMaxima;
-        }
-
-        // Getters and Setters
+        // Getters e Setters
         public Long getId() {
                 return id;
         }
@@ -59,5 +48,11 @@ public class Secao {
                 this.capacidadeMaxima = capacidadeMaxima;
         }
 
+        public TipoBebida getTipoBebida() {
+                return tipoBebida;
+        }
 
+        public void setTipoBebida(TipoBebida tipoBebida) {
+                this.tipoBebida = tipoBebida;
+        }
 }
