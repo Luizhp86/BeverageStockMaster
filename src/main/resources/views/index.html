@@ -76,7 +76,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Movimentações de Bebidas</h5>
-                        <canvas id="movimentacaoChart"></canvas>
+                        <div id="movimentacaoHistorico"></div>
                     </div>
                 </div>
             </div>
@@ -108,6 +108,10 @@
                 <input type="number" class="form-control" id="secaoIdEntrada" min="1" required>
                 <small id="secaoError" class="form-text text-danger" style="display: none;">O número da seção deve ser positivo.</small>
             </div>
+            <div class="form-group">
+                <label for="responsavelEntrada">Nome do Responsável</label>
+                <input type="text" class="form-control" id="responsavelEntrada" required>
+            </div>
             <button type="submit" class="btn btn-primary">Registrar Entrada</button>
         </form>
     </div>
@@ -129,8 +133,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
 <script src="js/scripts.js"></script>
 <script>
 
@@ -300,22 +302,37 @@
     }
 
     function deletarBebida(bebidaId) {
-        fetch(`/api/estoque/bebida/${bebidaId}`, {
-            method: 'DELETE',
-        })
-            .then(response => {
-                if (response.ok) {
-                    Swal.fire('Sucesso!', 'Bebida deletada com sucesso.', 'success');
-                    loadAllBebidas(); // Recarregar a tabela após deletar
-                    updateDashboard(); // Atualiza o dashboard após deletar
+        Swal.fire({
+            title: 'Deletar Bebida',
+            input: 'text',
+            inputLabel: 'Nome do Responsável',
+            inputPlaceholder: 'Digite o nome do responsável pela deleção',
+            showCancelButton: true,
+            confirmButtonText: 'Deletar',
+            showLoaderOnConfirm: true,
+            preConfirm: (responsavel) => {
+                if (!responsavel) {
+                    Swal.showValidationMessage('Por favor, insira o nome do responsável');
                 } else {
-                    Swal.fire('Erro!', 'Erro ao deletar bebida.', 'error');
+                    return fetch(`/api/estoque/bebida/${bebidaId}?responsavel=${responsavel}`, {
+                        method: 'DELETE',
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                Swal.fire('Sucesso!', 'Bebida deletada com sucesso.', 'success');
+                                loadAllBebidas(); // Recarregar a tabela após deletar
+                                updateDashboard(); // Atualiza o dashboard após deletar
+                            } else {
+                                Swal.fire('Erro!', 'Erro ao deletar bebida.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro:', error);
+                            Swal.fire('Erro!', 'Ocorreu um erro ao deletar a bebida.', 'error');
+                        });
                 }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                Swal.fire('Erro!', 'Ocorreu um erro ao deletar a bebida.', 'error');
-            });
+            }
+        });
     }
 
     function updateDashboard() {
@@ -339,10 +356,9 @@
                 ul.appendChild(li);
             });
         });
-        updateMovimentacaoChart();
+        updateMovimentacaoHistorico(); // Atualiza o histórico de movimentações
     }
 
-    // Registro de entrada de bebida
     document.getElementById('entradaForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -350,6 +366,7 @@
         const volume = parseFloat(document.getElementById('volumeBebida').value);
         const tipoBebida = document.getElementById('tipoBebida').value;
         const secaoId = parseInt(document.getElementById('secaoIdEntrada').value);
+        const responsavel = document.getElementById('responsavelEntrada').value;
         const volumeError = document.getElementById('volumeError');
         const secaoError = document.getElementById('secaoError');
 
@@ -367,13 +384,18 @@
             secaoError.style.display = 'none';
         }
 
+        if (!responsavel) {
+            Swal.fire('Erro!', 'O nome do responsável é obrigatório.', 'error');
+            return;
+        }
+
         const bebida = {
             nome: nome,
             volume: volume,
             tipoBebida: tipoBebida
         };
 
-        fetch(`/api/estoque/entrada?secaoId=${secaoId}`, {
+        fetch(`/api/estoque/entrada?secaoId=${secaoId}&responsavel=${responsavel}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -402,95 +424,79 @@
         showDashboard();  // Exibe o dashboard ao carregar a página
     });
 
-    let movimentacaoChartInstance = null;
+    function updateMovimentacaoHistorico() {
+        const movimentacaoHistoricoDiv = document.getElementById('movimentacaoHistorico');
 
-    function updateMovimentacaoChart() {
+        // Limpar o conteúdo antes de adicionar a nova tabela
+        movimentacaoHistoricoDiv.innerHTML = '';
+
         fetch('/api/estoque/historico-movimentacoes')
             .then(response => response.json())
             .then(data => {
-                const labels = [];
-                const entradas = [];
-                const saidas = [];
-                const exclusoes = [];
+                const tabela = document.createElement('table');
+                tabela.className = 'table table-bordered';
+                const thead = document.createElement('thead');
+                const trHead = document.createElement('tr');
+
+                const thHorario = document.createElement('th');
+                thHorario.innerText = 'Horário';
+                trHead.appendChild(thHorario);
+
+                const thTipo = document.createElement('th');
+                thTipo.innerText = 'Tipo';
+                trHead.appendChild(thTipo);
+
+                const thVolume = document.createElement('th');
+                thVolume.innerText = 'Volume';
+                trHead.appendChild(thVolume);
+
+                const thSecao = document.createElement('th');
+                thSecao.innerText = 'Seção';
+                trHead.appendChild(thSecao);
+
+                const thResponsavel = document.createElement('th');
+                thResponsavel.innerText = 'Responsável';
+                trHead.appendChild(thResponsavel);
+
+                thead.appendChild(trHead);
+                tabela.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
 
                 data.forEach(item => {
-                    const [horario, tipoMovimentacao, volume] = item;
+                    const tr = document.createElement('tr');
 
-                    const dataLabel = new Date(horario).toLocaleDateString();
-                    if (!labels.includes(dataLabel)) {
-                        labels.push(dataLabel);
-                    }
+                    const tdHorario = document.createElement('td');
+                    tdHorario.innerText = new Date(item[0]).toLocaleString();
+                    tr.appendChild(tdHorario);
 
-                    if (tipoMovimentacao === 'ENTRADA') {
-                        entradas.push(volume);
-                    } else if (tipoMovimentacao === 'SAIDA') {
-                        saidas.push(volume);
-                    } else if (tipoMovimentacao === 'EXCLUSAO') {
-                        exclusoes.push(volume);
-                    }
+                    const tdTipo = document.createElement('td');
+                    tdTipo.innerText = item[1];
+                    tr.appendChild(tdTipo);
+
+                    const tdVolume = document.createElement('td');
+                    tdVolume.innerText = item[2];
+                    tr.appendChild(tdVolume);
+
+                    const tdSecao = document.createElement('td');
+                    tdSecao.innerText = item[3] ? item[3] : 'Não Informada';
+                    tr.appendChild(tdSecao);
+
+                    const tdResponsavel = document.createElement('td');
+                    tdResponsavel.innerText = item[4] ? item[4] : 'Não Informado';
+                    tr.appendChild(tdResponsavel);
+
+                    tbody.appendChild(tr);
                 });
 
-                const ctx = document.getElementById('movimentacaoChart').getContext('2d');
-
-                // Destroi o gráfico existente se ele já estiver criado
-                if (movimentacaoChartInstance) {
-                    movimentacaoChartInstance.destroy();
-                }
-
-                movimentacaoChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Entradas',
-                                data: entradas,
-                                borderColor: 'green',
-                                fill: false
-                            },
-                            {
-                                label: 'Saídas',
-                                data: saidas,
-                                borderColor: 'red',
-                                fill: false
-                            },
-                            {
-                                label: 'Exclusões',
-                                data: exclusoes,
-                                borderColor: 'orange',
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: {
-                                    unit: 'day'
-                                },
-                                adapters: {
-                                    date: {
-                                        locale: 'en'  // você pode ajustar isso conforme sua necessidade
-                                    }
-                                }
-                            },
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
+                tabela.appendChild(tbody);
+                movimentacaoHistoricoDiv.appendChild(tabela);
             })
             .catch(error => {
                 console.error('Erro:', error);
                 Swal.fire('Erro!', 'Ocorreu um erro ao carregar as movimentações.', 'error');
             });
     }
-
-
-
 </script>
 </body>
 </html>

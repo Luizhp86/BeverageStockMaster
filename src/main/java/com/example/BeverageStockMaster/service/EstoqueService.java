@@ -28,7 +28,7 @@ public class EstoqueService {
         this.historicoRepository = historicoRepository;
     }
 
-    public void registrarEntradaBebida(Bebida bebida, Long secaoId) {
+    public void registrarEntradaBebida(Bebida bebida, Long secaoId, String responsavel) {
         if (secaoId <= 0) {
             throw new IllegalArgumentException("O número da seção deve ser positivo.");
         }
@@ -56,10 +56,10 @@ public class EstoqueService {
         bebidaRepository.save(bebida);
         secaoRepository.save(secao);
 
-        registrarHistorico("ENTRADA", bebida.getVolume(), secao, "responsável");
+        registrarHistorico("ENTRADA", bebida.getVolume(), secao, responsavel);
     }
 
-    public void registrarSaidaBebida(Bebida bebida, Long secaoId) {
+    public void registrarSaidaBebida(Bebida bebida, Long secaoId, String responsavel) {
         if (secaoId <= 0) {
             throw new IllegalArgumentException("O número da seção deve ser positivo.");
         }
@@ -77,7 +77,7 @@ public class EstoqueService {
         bebidaRepository.delete(bebida);
         secaoRepository.save(secao);
 
-        registrarHistorico("SAIDA", bebida.getVolume(), secao, "responsável");
+        registrarHistorico("SAIDA", bebida.getVolume(), secao, responsavel);
     }
 
     private void registrarHistorico(String tipo, double volume, Secao secao, String responsavel) {
@@ -126,7 +126,7 @@ public class EstoqueService {
         return bebidaRepository.findAll();
     }
 
-    public void deletarBebida(Long bebidaId) {
+    public void deletarBebida(Long bebidaId, String responsavel) {
         Bebida bebida = bebidaRepository.findById(bebidaId)
                 .orElseThrow(() -> new IllegalArgumentException("Bebida não encontrada"));
 
@@ -139,7 +139,7 @@ public class EstoqueService {
         }
 
         // Registrar a exclusão no histórico de movimentações
-        registrarHistorico("EXCLUSAO", bebida.getVolume(), secao, "responsável");
+        registrarHistorico("EXCLUSAO", bebida.getVolume(), secao, responsavel);
 
         // Excluir a bebida
         bebidaRepository.delete(bebida);

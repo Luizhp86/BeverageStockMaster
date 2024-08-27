@@ -1,8 +1,6 @@
 package com.example.BeverageStockMaster.controller;
 
-import com.example.BeverageStockMaster.repository.BebidaRepository;
-import com.example.BeverageStockMaster.repository.SecaoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +10,6 @@ import com.example.BeverageStockMaster.domain.Secao;
 import com.example.BeverageStockMaster.service.EstoqueService;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/estoque")
 public class EstoqueController {
@@ -23,15 +20,14 @@ public class EstoqueController {
         this.estoqueService = estoqueService;
     }
 
-
     @PostMapping("/entrada")
-    public ResponseEntity<?> registrarEntrada(@RequestBody Bebida bebida, @RequestParam Long secaoId) {
+    public ResponseEntity<?> registrarEntrada(@RequestBody Bebida bebida, @RequestParam Long secaoId, @RequestParam String responsavel) {
         if (secaoId <= 0) {
             return ResponseEntity.badRequest().body("O número da seção deve ser positivo.");
         }
 
         try {
-            estoqueService.registrarEntradaBebida(bebida, secaoId);
+            estoqueService.registrarEntradaBebida(bebida, secaoId, responsavel);
             return ResponseEntity.ok("Bebida registrada com sucesso na seção " + secaoId);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -39,13 +35,13 @@ public class EstoqueController {
     }
 
     @PostMapping("/saida")
-    public ResponseEntity<?> registrarSaida(@RequestBody Bebida bebida, @RequestParam Long secaoId) {
+    public ResponseEntity<?> registrarSaida(@RequestBody Bebida bebida, @RequestParam Long secaoId, @RequestParam String responsavel) {
         if (bebida.getVolume() <= 0) {
             return ResponseEntity.badRequest().body("O volume deve ser maior que zero.");
         }
 
         try {
-            estoqueService.registrarSaidaBebida(bebida, secaoId);
+            estoqueService.registrarSaidaBebida(bebida, secaoId, responsavel);
             return ResponseEntity.ok("Bebida removida com sucesso da seção " + secaoId);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -99,9 +95,9 @@ public class EstoqueController {
     }
 
     @DeleteMapping("/bebida/{id}")
-    public ResponseEntity<?> deletarBebida(@PathVariable Long id) {
+    public ResponseEntity<?> deletarBebida(@PathVariable Long id, @RequestParam String responsavel) {
         try {
-            estoqueService.deletarBebida(id);
+            estoqueService.deletarBebida(id, responsavel);
             return ResponseEntity.ok("Bebida deletada com sucesso.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -115,5 +111,4 @@ public class EstoqueController {
         List<Object[]> historicoMovimentacoes = estoqueService.consultarHistoricoMovimentacoes();
         return ResponseEntity.ok(historicoMovimentacoes);
     }
-
 }
