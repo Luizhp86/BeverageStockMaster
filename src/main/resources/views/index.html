@@ -36,6 +36,26 @@
         .card {
             margin-bottom: 20px;
         }
+        .text-dark-green {
+            color: #006400; /* Verde Escuro */
+        }
+        .card-title {
+            font-weight: bold; /* Negrito */
+            text-transform: uppercase; /* Maiúsculas */
+        }
+        .d-flex .card {
+            flex: 1 1 calc(33% - 20px); /* Ocupa 1/3 do espaço, menos a margem */
+        }
+        .w-100 {
+            width: 100%;
+        }
+        .mx-2 {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .full-width-card {
+            flex: 0 0 100%;
+        }
     </style>
 </head>
 <body>
@@ -44,7 +64,7 @@
     <a href="#" onclick="showDashboard()">Dashboard</a>
     <a href="#" onclick="showRegisterForm()">Registrar Entrada de Bebida</a>
     <a href="#" onclick="showAllBebidas()">Consultar bebidas disponíveis</a>
-    <a href="#" onclick="showQuantidadePorSecao()"> Consulta do volume total no estoque por cada tipo de bebida</a>
+    <a href="#" onclick="showQuantidadePorSecao()">Consulta do volume total no estoque por cada tipo de bebida</a>
     <a href="#" onclick="showConfigurarTipos()">Cadastrar Tipos de Bebidas</a>
     <a href="#" onclick="showGerenciarSecoes()">Cadastrar Seções</a>
 </div>
@@ -52,7 +72,7 @@
     <div id="dashboard" style="display:none;">
         <h1>Dashboard</h1>
         <div class="d-flex flex-wrap justify-content-between">
-            <div class="card mt-4 flex-grow-1">
+            <div class="card mt-4 flex-grow-1 mx-2">
                 <div class="card-body">
                     <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Consultar Locais Disponíveis</h5>
                     <div class="form-group">
@@ -63,31 +83,45 @@
                     <div id="resultadoConsultaLocais" class="mt-3"></div>
                 </div>
             </div>
-            <div class="card mt-4 flex-grow-1">
+            <div class="card mt-4 flex-grow-1 mx-2">
                 <div class="card-body">
                     <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Total de Litros Armazenados</h5>
                     <p class="card-text" id="totalLitros">Carregando...</p>
                 </div>
             </div>
-            <div class="card mt-4 flex-grow-1">
+            <div class="card mt-4 flex-grow-1 mx-2">
                 <div class="card-body">
                     <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Quantidade de Seções</h5>
                     <p class="card-text" id="totalSecoes">Carregando...</p>
                 </div>
             </div>
-            <div class="card mt-4 flex-grow-1">
+            <div class="card mt-4 flex-grow-1 mx-2">
                 <div class="card-body">
                     <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Nomes das Bebidas Disponíveis</h5>
                     <ul id="nomeBebidas" class="list-unstyled"></ul>
                 </div>
             </div>
-            <div class="card mt-4 w-100">
+            <div class="card mt-4 w-100 mx-2">
+                <div class="card-body">
+                    <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Consultar Seções Disponíveis para Venda</h5>
+                    <div class="form-group">
+                        <label for="tipoBebidaVenda">Tipo de Bebida</label>
+                        <select class="form-control" id="tipoBebidaVenda">
+                            <!-- Opções serão carregadas dinamicamente -->
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="consultarSecoesDisponiveisParaVenda()">Consultar</button>
+                    <div id="resultadoConsultaVenda" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-4 w-100 full-width-card">
                 <div class="card-body">
                     <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Movimentações de Bebidas</h5>
                     <div id="movimentacaoHistorico"></div>
                 </div>
             </div>
-        </div>
+
     </div>
 
     <!-- Seção de Configuração de Tipos de Bebidas -->
@@ -98,13 +132,19 @@
                 <label for="descricaoTipoBebida">Descrição do Tipo de Bebida</label>
                 <input type="text" class="form-control" id="descricaoTipoBebida" required>
             </div>
+            <div class="form-group">
+                <label for="restricaoQuarentena">Restrição Quarentena</label>
+                <input type="checkbox" id="restricaoQuarentena">
+            </div>
             <button type="submit" class="btn btn-primary">Adicionar Tipo de Bebida</button>
         </form>
+
         <div id="listaTiposBebida" class="mt-3">
             <table class="table table-bordered">
                 <thead>
                 <tr>
                     <th>Descrição</th>
+                    <th>Restrição de Quarentena</th>
                     <th>Ações</th>
                 </tr>
                 </thead>
@@ -112,7 +152,9 @@
                 <!-- Tipos de bebida cadastrados serão listados aqui via JavaScript -->
                 </tbody>
             </table>
-        </div>    </div>
+        </div>
+    </div>
+
 
     <!-- Formulário de Registro -->
     <div id="registerForm" style="display:none;">
@@ -302,7 +344,6 @@
                 tabela.className = 'table table-bordered';
                 const thead = document.createElement('thead');
                 const trHead = document.createElement('tr');
-
                 const thBebida = document.createElement('th');
                 thBebida.innerText = 'Bebida';
                 trHead.appendChild(thBebida);
@@ -342,7 +383,6 @@
                     const tdTipoBebida = document.createElement('td');
                     tdTipoBebida.innerText = bebida.tipoBebida.descricao;
                     tr.appendChild(tdTipoBebida);
-
                     const tdQuantidade = document.createElement('td');
                     tdQuantidade.innerText = bebida.volume;
                     tr.appendChild(tdQuantidade);
@@ -350,9 +390,9 @@
                     const tdAcoes = document.createElement('td');
                     const btnDeletar = document.createElement('button');
                     btnDeletar.className = 'btn btn-danger';
-                    btnDeletar.innerText = 'Deletar';
+                    btnDeletar.innerText = 'Saída';
                     btnDeletar.onclick = function() {
-                        deletarBebida(bebida.id);
+                        saidaBebida(bebida.id);
                     };
                     tdAcoes.appendChild(btnDeletar);
                     tr.appendChild(tdAcoes);
@@ -436,14 +476,14 @@
     }
 
 
-    function deletarBebida(bebidaId) {
+    function saidaBebida(bebidaId) {
         Swal.fire({
-            title: 'Deletar Bebida',
+            title: 'Saída Bebida',
             input: 'text',
             inputLabel: 'Nome do Responsável',
-            inputPlaceholder: 'Digite o nome do responsável pela deleção',
+            inputPlaceholder: 'Digite o nome do responsável pela saída',
             showCancelButton: true,
-            confirmButtonText: 'Deletar',
+            confirmButtonText: 'Saída',
             showLoaderOnConfirm: true,
             preConfirm: (responsavel) => {
                 if (!responsavel) {
@@ -454,16 +494,16 @@
                     })
                         .then(response => {
                             if (response.ok) {
-                                Swal.fire('Sucesso!', 'Bebida deletada com sucesso.', 'success');
+                                Swal.fire('Sucesso!', 'Saída de bebida realizada com sucesso.', 'success');
                                 loadAllBebidas(); // Recarregar a tabela após deletar
                                 updateDashboard(); // Atualiza o dashboard após deletar
                             } else {
-                                Swal.fire('Erro!', 'Erro ao deletar bebida.', 'error');
+                                Swal.fire('Erro!', 'Erro ao dar saída de bebida.', 'error');
                             }
                         })
                         .catch(error => {
                             console.error('Erro:', error);
-                            Swal.fire('Erro!', 'Ocorreu um erro ao deletar a bebida.', 'error');
+                            Swal.fire('Erro!', 'Ocorreu um erro ao dar saída de bebida.', 'error');
                         });
                 }
             }
@@ -516,8 +556,6 @@
         fetch('/api/estoque/historico-movimentacoes')
             .then(response => response.json())
             .then(data => {
-                const existingTable = $('#movimentacaoHistoricoTable');
-
                 const tabela = document.createElement('table');
                 tabela.className = 'table table-bordered';
                 tabela.id = 'movimentacaoHistoricoTable';  // Adicionando ID à tabela
@@ -529,7 +567,9 @@
                 trHead.appendChild(thHorario);
 
                 const thTipo = document.createElement('th');
-                thTipo.innerText = 'Tipo';
+                const tipoBebidaTitle = document.createElement('div');
+                tipoBebidaTitle.innerText = 'Tipo de Bebida'; // Título fora do filtro
+                thTipo.appendChild(tipoBebidaTitle);
                 trHead.appendChild(thTipo);
 
                 const thVolume = document.createElement('th');
@@ -537,7 +577,9 @@
                 trHead.appendChild(thVolume);
 
                 const thSecao = document.createElement('th');
-                thSecao.innerText = 'Seção';
+                const secaoTitle = document.createElement('div');
+                secaoTitle.innerText = 'Seção'; // Título fora do filtro
+                thSecao.appendChild(secaoTitle);
                 trHead.appendChild(thSecao);
 
                 const thResponsavel = document.createElement('th');
@@ -583,6 +625,26 @@
                     order: [[0, 'desc'], [3, 'asc']], // Ordena primeiro por data (desc) e depois por seção (asc)
                     language: {
                         url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/Portuguese.json'  // Para exibir em português
+                    },
+                    initComplete: function () {
+                        this.api().columns([1, 3]).every(function () {
+                            var column = this;
+                            var select = $('<select><option value=""></option></select>')
+                                .appendTo($(column.header()))
+                                .on('change', function () {
+                                    var val = $.fn.dataTable.util.escapeRegex(
+                                        $(this).val()
+                                    );
+
+                                    column
+                                        .search(val ? '^' + val + '$' : '', true, false)
+                                        .draw();
+                                });
+
+                            column.data().unique().sort().each(function (d, j) {
+                                select.append('<option value="' + d + '">' + d + '</option>')
+                            });
+                        });
                     }
                 });
             })
@@ -591,6 +653,7 @@
                 Swal.fire('Erro!', 'Ocorreu um erro ao carregar as movimentações.', 'error');
             });
     }
+
 
     function loadTiposBebida() {
         const tiposBebidaTableBody = document.getElementById('tiposBebidaTableBody');
@@ -604,10 +667,17 @@
                     data.forEach(tipo => {
                         const row = document.createElement('tr');
 
+                        // Coluna para a descrição do tipo de bebida
                         const descricaoCell = document.createElement('td');
                         descricaoCell.textContent = tipo.descricao;
                         row.appendChild(descricaoCell);
 
+                        // Coluna para o atributo restricaoQuarentena
+                        const restricaoCell = document.createElement('td');
+                        restricaoCell.textContent = tipo.restricaoQuarentena ? 'Sim' : 'Não';
+                        row.appendChild(restricaoCell);
+
+                        // Coluna para as ações (ex. deletar)deletar
                         const actionsCell = document.createElement('td');
                         const deleteButton = document.createElement('button');
                         deleteButton.className = 'btn btn-danger btn-sm';
@@ -616,17 +686,17 @@
                         actionsCell.appendChild(deleteButton);
                         row.appendChild(actionsCell);
 
+                        // Adiciona a linha à tabela
                         tiposBebidaTableBody.appendChild(row);
                     });
                 } else {
-                    tiposBebidaTableBody.innerHTML = '<tr><td colspan="2">Nenhum tipo de bebida cadastrado</td></tr>';
+                    tiposBebidaTableBody.innerHTML = '<tr><td colspan="3">Nenhum tipo de bebida cadastrado</td></tr>';
                 }
             })
             .catch(error => {
                 console.error('Erro ao carregar tipos de bebida:', error);
             });
     }
-
     function loadTiposBebidaSelect() {
         const tipoBebidaSelect = document.getElementById('tipoBebida');
 
@@ -726,7 +796,7 @@
             })
         })
             .then(response => response.text())
-            .then(message => {
+            .then(message => {deletar
                 Swal.fire('Sucesso!', message, 'success');
                 carregarSecoes();
             })
@@ -783,19 +853,20 @@
         event.preventDefault();
 
         const descricao = document.getElementById('descricaoTipoBebida').value;
+        const restricaoQuarentena = document.getElementById('restricaoQuarentena').checked;
 
         fetch('/api/tipos-bebidas/nova', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ descricao })
+            body: JSON.stringify({ descricao, restricaoQuarentena })
         })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erro na resposta da rede.');
                 }
-                return response.text();  // Agora estamos esperando uma string como resposta
+                return response.text();
             })
             .then(data => {
                 Swal.fire('Sucesso!', data, 'success');
@@ -857,6 +928,7 @@
 
     // Inicializar com o dashboard exibido e carregar os dados
     document.addEventListener('DOMContentLoaded', function() {
+        loadTiposBebida();  // Carrega os tipos de bebida ao carregar a página
         showDashboard();  // Exibe o dashboard ao carregar a página
     });
 
@@ -894,6 +966,42 @@
             .catch(error => {
                 console.error('Erro:', error);
                 Swal.fire('Erro!', 'Ocorreu um erro ao consultar os locais disponíveis.', 'error');
+            });
+    }
+    function consultarSecoesDisponiveisParaVenda() {
+        const tipoBebidaId = document.getElementById('tipoBebidaVenda').value;
+
+        if (!tipoBebidaId) {
+            Swal.fire('Erro!', 'Por favor, selecione um tipo de bebida.', 'error');
+            return;
+        }
+
+        fetch(`/api/estoque/secoes-disponiveis-venda?tipoBebidaId=${tipoBebidaId}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultadoConsultaVenda = document.getElementById('resultadoConsultaVenda');
+                resultadoConsultaVenda.innerHTML = ''; // Limpa o conteúdo
+
+                if (data.length === 0) {
+                    resultadoConsultaVenda.innerText = 'Nenhuma seção disponível para venda da bebida solicitada.';
+                    return;
+                }
+
+                const lista = document.createElement('ul');
+                lista.className = 'list-group';
+
+                data.forEach(secao => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item';
+                    item.innerText = `${secao.nome} - Capacidade Disponível: ${secao.capacidadeAtual} litros`;
+                    lista.appendChild(item);
+                });
+
+                resultadoConsultaVenda.appendChild(lista);
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                Swal.fire('Erro!', 'Ocorreu um erro ao consultar as seções disponíveis para venda.', 'error');
             });
     }
 
