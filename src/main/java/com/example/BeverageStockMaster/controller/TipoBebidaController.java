@@ -2,6 +2,7 @@ package com.example.BeverageStockMaster.controller;
 
 import com.example.BeverageStockMaster.domain.TipoBebida;
 import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,13 @@ public class TipoBebidaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletarTipoBebida(@PathVariable Long id) {
-        tipoBebidaRepository.deleteById(id);
-        return ResponseEntity.ok("Tipo de Bebida deletado com sucesso.");
+        try {
+            tipoBebidaRepository.deleteById(id);
+            return ResponseEntity.ok("Tipo de bebida deletado com sucesso.");
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("Erro: Este tipo de bebida está associado a uma ou mais seções e não pode ser deletado.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao tentar deletar o tipo de bebida.");
+        }
     }
 }

@@ -97,8 +97,19 @@
             </div>
             <button type="submit" class="btn btn-primary">Adicionar Tipo de Bebida</button>
         </form>
-        <div id="listaTiposBebida" class="mt-3"></div>
-    </div>
+        <div id="listaTiposBebida" class="mt-3">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody id="tiposBebidaTableBody">
+                <!-- Tipos de bebida cadastrados serão listados aqui via JavaScript -->
+                </tbody>
+            </table>
+        </div>    </div>
 
     <!-- Formulário de Registro -->
     <div id="registerForm" style="display:none;">
@@ -567,12 +578,34 @@
     }
 
     function loadTiposBebida() {
-        const listaTiposBebida = document.getElementById('listaTiposBebida');
+        const tiposBebidaTableBody = document.getElementById('tiposBebidaTableBody');
 
         fetch('/api/tipos-bebidas')
             .then(response => response.json())
             .then(data => {
-                listaTiposBebida.innerHTML = '<ul>' + data.map(tipo => `<li>${tipo.descricao} <button class="btn btn-danger btn-sm" onclick="deletarTipoBebida(${tipo.id})">Deletar</button></li>`).join('') + '</ul>';
+                tiposBebidaTableBody.innerHTML = ''; // Limpa o corpo da tabela
+
+                if (data.length > 0) {
+                    data.forEach(tipo => {
+                        const row = document.createElement('tr');
+
+                        const descricaoCell = document.createElement('td');
+                        descricaoCell.textContent = tipo.descricao;
+                        row.appendChild(descricaoCell);
+
+                        const actionsCell = document.createElement('td');
+                        const deleteButton = document.createElement('button');
+                        deleteButton.className = 'btn btn-danger btn-sm';
+                        deleteButton.textContent = 'Deletar';
+                        deleteButton.onclick = () => deletarTipoBebida(tipo.id);
+                        actionsCell.appendChild(deleteButton);
+                        row.appendChild(actionsCell);
+
+                        tiposBebidaTableBody.appendChild(row);
+                    });
+                } else {
+                    tiposBebidaTableBody.innerHTML = '<tr><td colspan="2">Nenhum tipo de bebida cadastrado</td></tr>';
+                }
             })
             .catch(error => {
                 console.error('Erro ao carregar tipos de bebida:', error);
