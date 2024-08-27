@@ -44,7 +44,7 @@
     <a href="#" onclick="showDashboard()">Dashboard</a>
     <a href="#" onclick="showRegisterForm()">Registrar Entrada de Bebida</a>
     <a href="#" onclick="showAllBebidas()">Consultar Todas as Bebidas</a>
-    <a href="#" onclick="showQuantidadePorSecao()">Consultar Quantidade por Seção</a>
+    <a href="#" onclick="showQuantidadePorSecao()"> Consulta do volume total no estoque por cada tipo de bebida</a>
     <a href="#" onclick="showConfigurarTipos()">Configuração de Tipos de Bebidas</a>
     <a href="#" onclick="showGerenciarSecoes()">Gerenciar Seções</a>
 </div>
@@ -378,35 +378,46 @@
             .then(data => {
                 const tabela = document.createElement('table');
                 tabela.className = 'table table-bordered';
+
+                // Cria o cabeçalho da tabela
                 const thead = document.createElement('thead');
                 const trHead = document.createElement('tr');
-                trHead.appendChild(document.createElement('th'));
 
-                const secoes = [...new Set(data.map(item => item[0]))];
-                secoes.forEach(secao => {
-                    const th = document.createElement('th');
-                    th.innerText = secao;
-                    trHead.appendChild(th);
-                });
+                const thTipoBebida = document.createElement('th');
+                thTipoBebida.innerText = 'Tipo de bebida';
+                trHead.appendChild(thTipoBebida);
+
+                const thVolumeTotal = document.createElement('th');
+                thVolumeTotal.innerText = 'Volume total';
+                trHead.appendChild(thVolumeTotal);
 
                 thead.appendChild(trHead);
                 tabela.appendChild(thead);
 
-                const tiposBebida = [...new Set(data.map(item => item[1]))];
+                // Cria o corpo da tabela
                 const tbody = document.createElement('tbody');
 
-                tiposBebida.forEach(tipoBebida => {
-                    const tr = document.createElement('tr');
-                    const th = document.createElement('th');
-                    th.innerText = tipoBebida;
-                    tr.appendChild(th);
+                // Agrupa os dados por tipo de bebida e calcula o volume total por tipo
+                const agrupadoPorTipo = data.reduce((acc, item) => {
+                    const [secao, tipoBebida, volume] = item;
+                    if (!acc[tipoBebida]) {
+                        acc[tipoBebida] = 0;
+                    }
+                    acc[tipoBebida] += volume;
+                    return acc;
+                }, {});
 
-                    secoes.forEach(secao => {
-                        const td = document.createElement('td');
-                        const bebida = data.find(item => item[0] === secao && item[1] === tipoBebida);
-                        td.innerText = bebida ? bebida[2] : '0';
-                        tr.appendChild(td);
-                    });
+                // Preenche o corpo da tabela com os dados agrupados
+                Object.keys(agrupadoPorTipo).forEach(tipoBebida => {
+                    const tr = document.createElement('tr');
+
+                    const tdTipoBebida = document.createElement('td');
+                    tdTipoBebida.innerText = tipoBebida;
+                    tr.appendChild(tdTipoBebida);
+
+                    const tdVolumeTotal = document.createElement('td');
+                    tdVolumeTotal.innerText = agrupadoPorTipo[tipoBebida];
+                    tr.appendChild(tdVolumeTotal);
 
                     tbody.appendChild(tr);
                 });
