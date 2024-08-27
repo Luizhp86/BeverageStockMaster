@@ -1,8 +1,6 @@
     package com.example.BeverageStockMaster.domain;
     import jakarta.persistence.*;
 
-    import java.time.LocalDate;
-
     @Entity
     @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
     @DiscriminatorColumn(name = "tipo_discriminador")
@@ -21,10 +19,6 @@
 
         @ManyToOne
         private Secao secao;
-
-        private String responsavel;
-
-        private LocalDate dataEntrada;
 
         // Getters e Setters
         public Long getId() {
@@ -67,19 +61,5 @@
             this.secao = secao;
         }
 
-        public String getResponsavel() {
-            return responsavel;
-        }
 
-        public void setResponsavel(String responsavel) {
-            this.responsavel = responsavel;
-        }
-
-        public LocalDate getDataEntrada() {
-            return dataEntrada;
-        }
-
-        public void setDataEntrada(LocalDate dataEntrada) {
-            this.dataEntrada = dataEntrada;
-        }
     }

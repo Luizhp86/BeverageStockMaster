@@ -13,9 +13,6 @@ public class TipoBebida {
 
     private String descricao;
 
-    private boolean restricaoQuarentena;
-
-
     // Construtor padrão
     public TipoBebida() {}
 
@@ -34,13 +31,5 @@ public class TipoBebida {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
-    }
-
-    public boolean isRestricaoQuarentena() {
-        return restricaoQuarentena;
-    }
-
-    public void setRestricaoQuarentena(boolean restricaoQuarentena) {
-        this.restricaoQuarentena = restricaoQuarentena;
     }
 }
