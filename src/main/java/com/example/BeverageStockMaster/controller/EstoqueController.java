@@ -114,4 +114,10 @@ public class EstoqueController {
         List<Object[]> historicoMovimentacoes = estoqueService.consultarHistoricoMovimentacoes();
         return ResponseEntity.ok(historicoMovimentacoes);
     }
+
+    @GetMapping("/locais-disponiveis")
+    public ResponseEntity<List<Secao>> consultarLocaisDisponiveis(@RequestParam double volume) {
+        List<Secao> secoesDisponiveis = estoqueService.consultarLocaisDisponiveisParaVolume(volume);
+        return ResponseEntity.ok(secoesDisponiveis);
+    }
 }

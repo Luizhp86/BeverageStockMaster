@@ -51,37 +51,40 @@
 <div class="content">
     <div id="dashboard" style="display:none;">
         <h1>Dashboard</h1>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Total de Litros Armazenados</h5>
-                        <p class="card-text" id="totalLitros">Carregando...</p>
+        <div class="d-flex flex-wrap justify-content-between">
+            <div class="card mt-4 flex-grow-1">
+                <div class="card-body">
+                    <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Consultar Locais Disponíveis</h5>
+                    <div class="form-group">
+                        <label for="volumeConsultaDashboard">Volume (em litros)</label>
+                        <input type="number" class="form-control" id="volumeConsultaDashboard" min="0.01" step="0.01" required>
                     </div>
+                    <button class="btn btn-primary" onclick="consultarLocaisDisponiveis()">Consultar</button>
+                    <div id="resultadoConsultaLocais" class="mt-3"></div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Quantidade de Seções</h5>
-                        <p class="card-text" id="totalSecoes">Carregando...</p>
-                    </div>
+            <div class="card mt-4 flex-grow-1">
+                <div class="card-body">
+                    <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Total de Litros Armazenados</h5>
+                    <p class="card-text" id="totalLitros">Carregando...</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Nomes das Bebidas Disponíveis</h5>
-                        <ul id="nomeBebidas" class="list-unstyled"></ul>
-                    </div>
+            <div class="card mt-4 flex-grow-1">
+                <div class="card-body">
+                    <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Quantidade de Seções</h5>
+                    <p class="card-text" id="totalSecoes">Carregando...</p>
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Movimentações de Bebidas</h5>
-                        <div id="movimentacaoHistorico"></div>
-                    </div>
+            <div class="card mt-4 flex-grow-1">
+                <div class="card-body">
+                    <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Nomes das Bebidas Disponíveis</h5>
+                    <ul id="nomeBebidas" class="list-unstyled"></ul>
+                </div>
+            </div>
+            <div class="card mt-4 w-100">
+                <div class="card-body">
+                    <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Movimentações de Bebidas</h5>
+                    <div id="movimentacaoHistorico"></div>
                 </div>
             </div>
         </div>
@@ -416,7 +419,7 @@
                     tr.appendChild(tdTipoBebida);
 
                     const tdVolumeTotal = document.createElement('td');
-                    tdVolumeTotal.innerText = agrupadoPorTipo[tipoBebida];
+                    tdVolumeTotal.innerText = `${agrupadoPorTipo[tipoBebida]} litros`;
                     tr.appendChild(tdVolumeTotal);
 
                     tbody.appendChild(tr);
@@ -431,6 +434,7 @@
                 Swal.fire('Erro!', 'Ocorreu um erro ao consultar a quantidade por seção.', 'error');
             });
     }
+
 
     function deletarBebida(bebidaId) {
         Swal.fire({
@@ -855,6 +859,43 @@
     document.addEventListener('DOMContentLoaded', function() {
         showDashboard();  // Exibe o dashboard ao carregar a página
     });
+
+    function consultarLocaisDisponiveis() {
+        const volumeDesejado = parseFloat(document.getElementById('volumeConsultaDashboard').value);
+
+        if (isNaN(volumeDesejado) || volumeDesejado <= 0) {
+            Swal.fire('Erro!', 'Por favor, insira um volume válido.', 'error');
+            return;
+        }
+
+        fetch(`/api/estoque/locais-disponiveis?volume=${volumeDesejado}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultadoConsulta = document.getElementById('resultadoConsultaLocais');
+                resultadoConsulta.innerHTML = ''; // Limpa o conteúdo
+
+                if (data.length === 0) {
+                    resultadoConsulta.innerText = 'Nenhum local disponível para armazenar o volume solicitado.';
+                    return;
+                }
+
+                const lista = document.createElement('ul');
+                lista.className = 'list-group';
+
+                data.forEach(secao => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item';
+                    item.innerText = `${secao.nome} - Capacidade Disponível: ${(secao.capacidadeMaxima - secao.capacidadeAtual)} litros - Tipo: ${secao.tipoBebida.descricao}`;
+                    lista.appendChild(item);
+                });
+
+                resultadoConsulta.appendChild(lista);
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                Swal.fire('Erro!', 'Ocorreu um erro ao consultar os locais disponíveis.', 'error');
+            });
+    }
 
 </script>
 </body>

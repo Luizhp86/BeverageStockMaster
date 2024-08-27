@@ -151,4 +151,10 @@
             return secaoRepository.findAll();
         }
 
+        public List<Secao> consultarLocaisDisponiveisParaVolume(double volume) {
+            return secaoRepository.findAll().stream()
+                    .filter(secao -> (secao.getCapacidadeMaxima() - secao.getCapacidadeAtual()) >= volume)
+                    .collect(Collectors.toList());
+        }
+
     }
