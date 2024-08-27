@@ -801,38 +801,12 @@
         const tipoBebida = document.getElementById('tipoBebida').value;
         const secaoId = document.getElementById('secaoIdEntrada').value;
         const responsavel = document.getElementById('responsavelEntrada').value;
-        const volumeError = document.getElementById('volumeError');
-        const secaoError = document.getElementById('secaoError');
-
-        if (!tipoBebida) {
-            Swal.fire('Erro!', 'Você deve cadastrar ao menos um tipo de bebida.', 'error');
-            return;
-        }
-
-        if (volume <= 0) {
-            volumeError.style.display = 'block';
-            return;
-        } else {
-            volumeError.style.display = 'none';
-        }
-
-        if (!secaoId) {
-            secaoError.style.display = 'block';
-            return;
-        } else {
-            secaoError.style.display = 'none';
-        }
-
-        if (!responsavel) {
-            Swal.fire('Erro!', 'O nome do responsável é obrigatório.', 'error');
-            return;
-        }
 
         const bebida = {
             nome: nome,
             volume: volume,
             tipoBebida: {
-                id: tipoBebida  // tipoBebida deve ser enviado como um objeto com um campo id
+                id: tipoBebida
             }
         };
 
@@ -845,21 +819,21 @@
         })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Erro na resposta da rede.');
+                    return response.text().then(errorMessage => {
+                        throw new Error(errorMessage);
+                    });
                 }
                 return response.text();
             })
             .then(data => {
                 Swal.fire('Sucesso!', data, 'success');
                 document.getElementById('entradaForm').reset();
-                updateDashboard(); // Atualiza o dashboard após o registro de uma nova entrada
+                updateDashboard();
             })
             .catch(error => {
-                console.error('Erro:', error);
-                Swal.fire('Erro!', 'Ocorreu um erro ao registrar a entrada.', 'error');
+                Swal.fire('Erro!', error.message, 'error');  // Exibe a mensagem de erro personalizada
             });
     });
-
 
     document.getElementById("formSecao").addEventListener("submit", function(event) {
         event.preventDefault();

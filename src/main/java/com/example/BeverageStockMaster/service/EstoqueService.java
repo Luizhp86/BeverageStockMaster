@@ -31,38 +31,30 @@
                 throw new IllegalArgumentException("O número da seção deve ser positivo.");
             }
 
-            Secao secao = secaoRepository.findById(secaoId).orElse(null);
-            if (secao == null) {
-                String nomeSecao = "Seção " + secaoId;
-                secao = new Secao();
-                secao.setNome(nomeSecao);
-                secao.setCapacidadeAtual(0);
+            Secao secao = secaoRepository.findById(secaoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Seção não encontrada"));
 
-                // Verifique se o TipoBebida não é nulo e se a descrição também não é nula
-                if (bebida.getTipoBebida() != null && bebida.getTipoBebida().getDescricao() != null) {
-                    secao.setCapacidadeMaxima(bebida.getTipoBebida().getDescricao().equalsIgnoreCase("Alcoólica") ? 500 : 400);
-                } else {
-                    throw new IllegalArgumentException("Tipo de Bebida ou sua descrição está ausente.");
-                }
-                secaoRepository.save(secao);
-            } else {
-                // Atualizar a capacidade atual da seção
-                double novaCapacidadeAtual = secao.getCapacidadeAtual() + bebida.getVolume();
-                if (novaCapacidadeAtual > secao.getCapacidadeMaxima()) {
-                    throw new IllegalArgumentException("Capacidade máxima da seção excedida.");
-                }
-
-                secao.setCapacidadeAtual(novaCapacidadeAtual);
+            // Verificar se a seção já contém bebidas de um tipo diferente
+            if (secao.getTipoBebida() != null && !secao.getTipoBebida().getId().equals(bebida.getTipoBebida().getId())) {
+                throw new IllegalArgumentException("A seção só pode armazenar bebidas do tipo: " + secao.getTipoBebida().getDescricao());
             }
 
-            // Salva a bebida com a seção associada
+            // Calcular a nova capacidade
+            double novaCapacidadeAtual = secao.getCapacidadeAtual() + bebida.getVolume();
+            if (novaCapacidadeAtual > secao.getCapacidadeMaxima()) {
+                throw new IllegalArgumentException("Capacidade máxima da seção excedida.");
+            }
+
+            // Atualizar a capacidade e o tipo de bebida na seção
+            secao.setCapacidadeAtual(novaCapacidadeAtual);
+            secao.setTipoBebida(bebida.getTipoBebida());
+            secaoRepository.save(secao);
+
+            // Associar a bebida à seção e salvar
             bebida.setSecao(secao);
             bebidaRepository.save(bebida);
 
-            // Salva as atualizações da seção
-            secaoRepository.save(secao);
-
-            // Registra a entrada no histórico
+            // Registrar a movimentação no histórico
             registrarHistorico("ENTRADA", bebida.getVolume(), secao, responsavel);
         }
 

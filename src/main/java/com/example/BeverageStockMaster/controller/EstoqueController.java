@@ -24,11 +24,19 @@ public class EstoqueController {
 
     @PostMapping("/entrada")
     public ResponseEntity<String> registrarEntrada(@RequestBody Bebida bebida, @RequestParam Long secaoId, @RequestParam String responsavel) {
-        TipoBebida tipoBebida = tipoBebidaRepository.findById(bebida.getTipoBebida().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
-        bebida.setTipoBebida(tipoBebida);
-        estoqueService.registrarEntradaBebida(bebida, secaoId, responsavel);
-        return ResponseEntity.ok("Entrada registrada com sucesso.");
+        try {
+            TipoBebida tipoBebida = tipoBebidaRepository.findById(bebida.getTipoBebida().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
+            bebida.setTipoBebida(tipoBebida);
+            estoqueService.registrarEntradaBebida(bebida, secaoId, responsavel);
+            return ResponseEntity.ok("Entrada registrada com sucesso.");
+        } catch (IllegalArgumentException e) {
+            // Retorna a mensagem de erro personalizada com status 400
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            // Lida com outras exceções
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro ao registrar a entrada.");
+        }
     }
 
     @PostMapping("/saida")
