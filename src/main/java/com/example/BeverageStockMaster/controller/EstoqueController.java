@@ -1,9 +1,8 @@
 package com.example.BeverageStockMaster.controller;
-
-
 import com.example.BeverageStockMaster.domain.TipoBebida;
 import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
 import com.example.BeverageStockMaster.service.EstoqueService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +15,12 @@ import java.util.List;
 @RequestMapping("/api/estoque")
 public class EstoqueController {
 
-    private final EstoqueService estoqueService;
-    private final TipoBebidaRepository tipoBebidaRepository;
+    @Autowired
+    EstoqueService estoqueService;
 
-    public EstoqueController(EstoqueService estoqueService, TipoBebidaRepository tipoBebidaRepository) {
-        this.estoqueService = estoqueService;
-        this.tipoBebidaRepository = tipoBebidaRepository;
-    }
+    @Autowired
+    TipoBebidaRepository tipoBebidaRepository;
+
 
     @PostMapping("/entrada")
     public ResponseEntity<String> registrarEntrada(@RequestBody Bebida bebida, @RequestParam Long secaoId, @RequestParam String responsavel) {

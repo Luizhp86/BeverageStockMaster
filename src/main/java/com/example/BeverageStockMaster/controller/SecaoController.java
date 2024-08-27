@@ -1,9 +1,9 @@
 package com.example.BeverageStockMaster.controller;
-
 import com.example.BeverageStockMaster.domain.Secao;
 import com.example.BeverageStockMaster.domain.TipoBebida;
 import com.example.BeverageStockMaster.repository.SecaoRepository;
 import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,13 +13,12 @@ import java.util.List;
 @RequestMapping("/api/secoes")
 public class SecaoController {
 
-    private final SecaoRepository secaoRepository;
-    private final TipoBebidaRepository tipoBebidaRepository;
+    @Autowired
+    SecaoRepository secaoRepository;
 
-    public SecaoController(SecaoRepository secaoRepository, TipoBebidaRepository tipoBebidaRepository) {
-        this.secaoRepository = secaoRepository;
-        this.tipoBebidaRepository = tipoBebidaRepository;
-    }
+    @Autowired
+    TipoBebidaRepository tipoBebidaRepository;
+
 
     @PostMapping("/nova")
     public ResponseEntity<String> criarSecao(@RequestBody Secao secao) {

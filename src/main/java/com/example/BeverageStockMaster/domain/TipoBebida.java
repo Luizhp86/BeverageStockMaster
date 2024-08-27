@@ -1,5 +1,4 @@
 package com.example.BeverageStockMaster.domain;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

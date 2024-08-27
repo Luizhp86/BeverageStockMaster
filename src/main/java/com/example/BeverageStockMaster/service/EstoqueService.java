@@ -1,5 +1,4 @@
     package com.example.BeverageStockMaster.service;
-
     import com.example.BeverageStockMaster.domain.Bebida;
     import com.example.BeverageStockMaster.domain.HistoricoMovimentacao;
     import com.example.BeverageStockMaster.domain.Secao;
@@ -7,11 +6,8 @@
     import com.example.BeverageStockMaster.repository.BebidaRepository;
     import com.example.BeverageStockMaster.repository.HistoricoMovimentacaoRepository;
     import com.example.BeverageStockMaster.repository.SecaoRepository;
-
-    import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.stereotype.Service;
-
     import java.time.LocalDateTime;
     import java.util.List;
     import java.util.stream.Collectors;
@@ -19,18 +15,16 @@
     @Service
     public class EstoqueService {
 
-        private final BebidaRepository bebidaRepository;
-        private final SecaoRepository secaoRepository;
-        private final HistoricoMovimentacaoRepository historicoRepository;
-        private final TipoBebidaRepository tipoBebidaRepository;
+        @Autowired
+        BebidaRepository bebidaRepository;
 
         @Autowired
-        public EstoqueService(BebidaRepository bebidaRepository, SecaoRepository secaoRepository, HistoricoMovimentacaoRepository historicoRepository, TipoBebidaRepository tipoBebidaRepository) {
-            this.bebidaRepository = bebidaRepository;
-            this.secaoRepository = secaoRepository;
-            this.historicoRepository = historicoRepository;
-            this.tipoBebidaRepository = tipoBebidaRepository;
-        }
+        SecaoRepository secaoRepository;
+
+        @Autowired
+        HistoricoMovimentacaoRepository historicoRepository;
+
+
 
         public void registrarEntradaBebida(Bebida bebida, Long secaoId, String responsavel) {
             if (secaoId <= 0) {

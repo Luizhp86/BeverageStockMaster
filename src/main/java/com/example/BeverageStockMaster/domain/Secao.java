@@ -1,5 +1,4 @@
 package com.example.BeverageStockMaster.domain;
-
 import jakarta.persistence.*;
 
 @Entity

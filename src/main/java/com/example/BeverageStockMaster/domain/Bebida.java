@@ -1,6 +1,4 @@
     package com.example.BeverageStockMaster.domain;
-
-    import com.fasterxml.jackson.annotation.JsonIgnore;
     import jakarta.persistence.*;
 
     @Entity

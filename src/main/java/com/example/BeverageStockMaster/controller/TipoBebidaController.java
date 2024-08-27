@@ -1,7 +1,7 @@
 package com.example.BeverageStockMaster.controller;
-
 import com.example.BeverageStockMaster.domain.TipoBebida;
 import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +12,10 @@ import java.util.List;
 @RequestMapping("/api/tipos-bebidas")
 public class TipoBebidaController {
 
-    private final TipoBebidaRepository tipoBebidaRepository;
+    @Autowired
+    TipoBebidaRepository tipoBebidaRepository;
 
-    public TipoBebidaController(TipoBebidaRepository tipoBebidaRepository) {
-        this.tipoBebidaRepository = tipoBebidaRepository;
-    }
+
 
     @PostMapping("/nova")
     public ResponseEntity<String> criarTipoBebida(@RequestBody TipoBebida tipoBebida) {
