@@ -16,7 +16,7 @@ public class Bebida {
 
     private double volume;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
     private TipoBebida tipoBebida;
 
     @ManyToOne
@@ -63,20 +63,5 @@ public class Bebida {
         this.secao = secao;
     }
 
-    // Enum TipoBebida
-    public enum TipoBebida {
-        ALCOOLICA("Alcoólica"),
-        NAO_ALCOOLICA("Não Alcoólica");
 
-        private final String descricao;
-        //entro com o enum e retona a descrição
-        TipoBebida(String descricao) {
-            this.descricao = descricao;
-        }
-
-        public String getDescricao() {
-            return descricao;
-        }
-
-    }
 }

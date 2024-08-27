@@ -1,13 +1,15 @@
 package com.example.BeverageStockMaster.controller;
 
 
+import com.example.BeverageStockMaster.domain.TipoBebida;
+import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
+import com.example.BeverageStockMaster.service.EstoqueService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.BeverageStockMaster.domain.Bebida;
-import com.example.BeverageStockMaster.domain.Bebida.TipoBebida;
+
 import com.example.BeverageStockMaster.domain.Secao;
-import com.example.BeverageStockMaster.service.EstoqueService;
 
 import java.util.List;
 @RestController
@@ -15,23 +17,20 @@ import java.util.List;
 public class EstoqueController {
 
     private final EstoqueService estoqueService;
+    private final TipoBebidaRepository tipoBebidaRepository;
 
-    public EstoqueController(EstoqueService estoqueService) {
+    public EstoqueController(EstoqueService estoqueService, TipoBebidaRepository tipoBebidaRepository) {
         this.estoqueService = estoqueService;
+        this.tipoBebidaRepository = tipoBebidaRepository;
     }
 
     @PostMapping("/entrada")
-    public ResponseEntity<?> registrarEntrada(@RequestBody Bebida bebida, @RequestParam Long secaoId, @RequestParam String responsavel) {
-        if (secaoId <= 0) {
-            return ResponseEntity.badRequest().body("O número da seção deve ser positivo.");
-        }
-
-        try {
-            estoqueService.registrarEntradaBebida(bebida, secaoId, responsavel);
-            return ResponseEntity.ok("Bebida registrada com sucesso na seção " + secaoId);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<String> registrarEntrada(@RequestBody Bebida bebida, @RequestParam Long secaoId, @RequestParam String responsavel) {
+        TipoBebida tipoBebida = tipoBebidaRepository.findById(bebida.getTipoBebida().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
+        bebida.setTipoBebida(tipoBebida);
+        estoqueService.registrarEntradaBebida(bebida, secaoId, responsavel);
+        return ResponseEntity.ok("Entrada registrada com sucesso.");
     }
 
     @PostMapping("/saida")
@@ -49,11 +48,9 @@ public class EstoqueController {
     }
 
     @GetMapping("/volume-total")
-    public ResponseEntity<Double> consultarVolumeTotal(
-            @RequestParam TipoBebida tipoBebida,
-            @RequestParam(required = false) Long secaoId) {
+    public ResponseEntity<Double> consultarVolumeTotal() {
 
-        double volumeTotal = estoqueService.consultarVolumeTotalPorTipoESecao(tipoBebida, secaoId);
+        double volumeTotal = estoqueService.consultarVolumeTotal();
         return ResponseEntity.ok(volumeTotal);
     }
 

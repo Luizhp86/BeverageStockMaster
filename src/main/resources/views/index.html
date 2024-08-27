@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="css/styles.css">
 
-
     <style>
         body {
             display: flex;
@@ -46,6 +45,7 @@
     <a href="#" onclick="showRegisterForm()">Registrar Entrada de Bebida</a>
     <a href="#" onclick="showAllBebidas()">Consultar Todas as Bebidas</a>
     <a href="#" onclick="showQuantidadePorSecao()">Consultar Quantidade por Seção</a>
+    <a href="#" onclick="showConfigurarTipos()">Configuração de Tipos de Bebidas</a>
 </div>
 <div class="content">
     <div id="dashboard" style="display:none;">
@@ -86,6 +86,19 @@
         </div>
     </div>
 
+    <!-- Seção de Configuração de Tipos de Bebidas -->
+    <div id="configurarTipos" style="display:none;">
+        <h3>Configuração de Tipos de Bebidas</h3>
+        <form id="tipoBebidaForm">
+            <div class="form-group">
+                <label for="descricaoTipoBebida">Descrição do Tipo de Bebida</label>
+                <input type="text" class="form-control" id="descricaoTipoBebida" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar Tipo de Bebida</button>
+        </form>
+        <div id="listaTiposBebida" class="mt-3"></div>
+    </div>
+
     <!-- Formulário de Registro -->
     <div id="registerForm" style="display:none;">
         <h3>Registrar Entrada de Bebida</h3>
@@ -102,9 +115,9 @@
             <div class="form-group">
                 <label for="tipoBebida">Tipo de Bebida</label>
                 <select class="form-control" id="tipoBebida" required>
-                    <option value="ALCOOLICA">Alcoólica</option>
-                    <option value="NAO_ALCOOLICA">Não Alcoólica</option>
+                    <!-- Opções serão carregadas dinamicamente -->
                 </select>
+                <small id="tipoBebidaError" class="form-text text-danger" style="display: none;">Você deve cadastrar ao menos um tipo de bebida.</small>
             </div>
             <div class="form-group">
                 <label for="secaoIdEntrada">Seção</label>
@@ -131,6 +144,7 @@
         <div id="resultadoConsulta" class="mt-3"></div>
     </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
@@ -150,6 +164,7 @@
     function showRegisterForm() {
         hideAll();
         document.getElementById('registerForm').style.display = 'block';
+        loadTiposBebidaSelect(); // Carrega os tipos de bebida no select
     }
 
     function showAllBebidas() {
@@ -169,6 +184,7 @@
         document.getElementById('registerForm').style.display = 'none';
         document.getElementById('quantidadePorSecao').style.display = 'none';
         document.getElementById('allBebidas').style.display = 'none';
+        document.getElementById('configurarTipos').style.display = 'none';
     }
 
     function loadAllBebidas() {
@@ -222,7 +238,7 @@
                     tr.appendChild(tdSecao);
 
                     const tdTipoBebida = document.createElement('td');
-                    tdTipoBebida.innerText = bebida.tipoBebida === 'ALCOOLICA' ? 'Alcoólica' : 'Não Alcoólica';
+                    tdTipoBebida.innerText = bebida.tipoBebida.descricao;
                     tr.appendChild(tdTipoBebida);
 
                     const tdQuantidade = document.createElement('td');
@@ -341,95 +357,42 @@
     }
 
     function updateDashboard() {
-
-
         // Atualizar o total de litros armazenados
-        fetch('/api/estoque/volume-total?tipoBebida=ALCOOLICA').then(response => response.json()).then(data => {
-            document.getElementById('totalLitros').innerText = data + ' litros';
-        });
+        fetch('/api/estoque/volume-total')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('totalLitros').innerText = `${data} litros`;
+            });
 
         // Atualizar a quantidade de seções
-        fetch('/api/estoque/secoes').then(response => response.json()).then(data => {
-            document.getElementById('totalSecoes').innerText = data.length;
-        });
-
-        // Atualizar os nomes das bebidas disponíveis
-        fetch('/api/estoque/todas-bebidas').then(response => response.json()).then(data => {
-            const ul = document.getElementById('nomeBebidas');
-            ul.innerHTML = ''; // Limpar a lista antes de adicionar novos itens
-            data.forEach(bebida => {
-                const li = document.createElement('li');
-                li.innerText = bebida.nome;
-                ul.appendChild(li);
-            });
-        });
-
-    }
-
-    document.getElementById('entradaForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const nome = document.getElementById('nomeBebida').value;
-        const volume = parseFloat(document.getElementById('volumeBebida').value);
-        const tipoBebida = document.getElementById('tipoBebida').value;
-        const secaoId = parseInt(document.getElementById('secaoIdEntrada').value);
-        const responsavel = document.getElementById('responsavelEntrada').value;
-        const volumeError = document.getElementById('volumeError');
-        const secaoError = document.getElementById('secaoError');
-
-        if (volume <= 0) {
-            volumeError.style.display = 'block';
-            return;
-        } else {
-            volumeError.style.display = 'none';
-        }
-
-        if (secaoId <= 0) {
-            secaoError.style.display = 'block';
-            return;
-        } else {
-            secaoError.style.display = 'none';
-        }
-
-        if (!responsavel) {
-            Swal.fire('Erro!', 'O nome do responsável é obrigatório.', 'error');
-            return;
-        }
-
-        const bebida = {
-            nome: nome,
-            volume: volume,
-            tipoBebida: tipoBebida
-        };
-
-        fetch(`/api/estoque/entrada?secaoId=${secaoId}&responsavel=${responsavel}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(bebida)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro na resposta da rede.');
-                }
-                return response.text(); // Alterar para 'text()' ao invés de 'json()'
-            })
+        fetch('/api/estoque/secoes')
+            .then(response => response.json())
             .then(data => {
-                Swal.fire('Sucesso!', data, 'success'); // Exibe a mensagem de sucesso retornada pelo backend
-                document.getElementById('entradaForm').reset(); // Reseta o formulário após o cadastro
-                updateDashboard(); // Atualiza o dashboard após o registro de uma nova entrada
+                document.getElementById('totalSecoes').innerText = data.length;
             })
             .catch(error => {
-                console.error('Erro:', error);
-                Swal.fire('Erro!', 'Ocorreu um erro ao registrar a entrada.', 'error');
+                console.error('Erro ao carregar as seções:', error);
+                document.getElementById('totalSecoes').innerText = 'Erro ao carregar os dados';
             });
-    });
 
-    // Inicializar com o dashboard exibido e carregar os dados
-    document.addEventListener('DOMContentLoaded', function() {
-        showDashboard();  // Exibe o dashboard ao carregar a página
-    });
+        // Atualizar os nomes das bebidas disponíveis
+        fetch('/api/estoque/todas-bebidas')
+            .then(response => response.json())
+            .then(data => {
+                const ul = document.getElementById('nomeBebidas');
+                ul.innerHTML = ''; // Limpar a lista antes de adicionar novos itens
+                data.forEach(bebida => {
+                    const li = document.createElement('li');
+                    li.innerText = bebida.nome;
+                    ul.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar as bebidas:', error);
+                document.getElementById('nomeBebidas').innerText = 'Erro ao carregar os dados';
+            });
+    }
+
 
     function updateMovimentacaoHistorico() {
         const movimentacaoHistoricoDiv = document.getElementById('movimentacaoHistorico');
@@ -441,7 +404,6 @@
             .then(response => response.json())
             .then(data => {
                 const existingTable = $('#movimentacaoHistoricoTable');
-
 
                 const tabela = document.createElement('table');
                 tabela.className = 'table table-bordered';
@@ -516,6 +478,152 @@
                 Swal.fire('Erro!', 'Ocorreu um erro ao carregar as movimentações.', 'error');
             });
     }
+
+    function showConfigurarTipos() {
+        hideAll();
+        document.getElementById('configurarTipos').style.display = 'block';
+        loadTiposBebida(); // Carrega a lista de tipos de bebidas
+    }
+
+    function loadTiposBebida() {
+        const listaTiposBebida = document.getElementById('listaTiposBebida');
+
+        fetch('/api/tipo-bebida')
+            .then(response => response.json())
+            .then(data => {
+                listaTiposBebida.innerHTML = '<ul>' + data.map(tipo => `<li>${tipo.descricao}</li>`).join('') + '</ul>';
+            })
+            .catch(error => {
+                console.error('Erro ao carregar tipos de bebida:', error);
+            });
+    }
+
+    function loadTiposBebidaSelect() {
+        const tipoBebidaSelect = document.getElementById('tipoBebida');
+
+        fetch('/api/tipo-bebida')
+            .then(response => response.json())
+            .then(data => {
+                tipoBebidaSelect.innerHTML = ''; // Limpa o select
+
+                if (data.length > 0) {
+                    data.forEach(tipo => {
+                        const option = document.createElement('option');
+                        option.value = tipo.id; // Aqui o valor será o ID
+                        option.textContent = tipo.descricao;
+                        tipoBebidaSelect.appendChild(option);
+                    });
+                    document.getElementById('tipoBebidaError').style.display = 'none';
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Nenhum tipo de bebida disponível';
+                    tipoBebidaSelect.appendChild(option);
+                    document.getElementById('tipoBebidaError').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar tipos de bebida:', error);
+                Swal.fire('Erro!', 'Ocorreu um erro ao carregar os tipos de bebida.', 'error');
+            });
+    }
+
+    document.getElementById('tipoBebidaForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const descricao = document.getElementById('descricaoTipoBebida').value;
+
+        fetch('/api/tipo-bebida', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ descricao })
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire('Sucesso!', 'Tipo de Bebida adicionado com sucesso.', 'success');
+                document.getElementById('tipoBebidaForm').reset();
+                loadTiposBebida(); // Recarrega a lista de tipos de bebidas
+            })
+            .catch(error => {
+                console.error('Erro ao adicionar tipo de bebida:', error);
+                Swal.fire('Erro!', 'Ocorreu um erro ao adicionar o tipo de bebida.', 'error');
+            });
+    });
+
+    document.getElementById('entradaForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const nome = document.getElementById('nomeBebida').value;
+        const volume = parseFloat(document.getElementById('volumeBebida').value);
+        const tipoBebida = document.getElementById('tipoBebida').value;
+        const secaoId = parseInt(document.getElementById('secaoIdEntrada').value);
+        const responsavel = document.getElementById('responsavelEntrada').value;
+        const volumeError = document.getElementById('volumeError');
+        const secaoError = document.getElementById('secaoError');
+
+        if (!tipoBebida) {
+            Swal.fire('Erro!', 'Você deve cadastrar ao menos um tipo de bebida.', 'error');
+            return;
+        }
+
+        if (volume <= 0) {
+            volumeError.style.display = 'block';
+            return;
+        } else {
+            volumeError.style.display = 'none';
+        }
+
+        if (secaoId <= 0) {
+            secaoError.style.display = 'block';
+            return;
+        } else {
+            secaoError.style.display = 'none';
+        }
+
+        if (!responsavel) {
+            Swal.fire('Erro!', 'O nome do responsável é obrigatório.', 'error');
+            return;
+        }
+
+        const bebida = {
+            nome: nome,
+            volume: volume,
+            tipoBebida: {
+                id: tipoBebida  // tipoBebida deve ser enviado como um objeto com um campo id
+            }
+        };
+
+        fetch(`/api/estoque/entrada?secaoId=${secaoId}&responsavel=${responsavel}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(bebida)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na resposta da rede.');
+                }
+                return response.text();
+            })
+            .then(data => {
+                Swal.fire('Sucesso!', data, 'success');
+                document.getElementById('entradaForm').reset();
+                updateDashboard(); // Atualiza o dashboard após o registro de uma nova entrada
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                Swal.fire('Erro!', 'Ocorreu um erro ao registrar a entrada.', 'error');
+            });
+    });
+
+
+    // Inicializar com o dashboard exibido e carregar os dados
+    document.addEventListener('DOMContentLoaded', function() {
+        showDashboard();  // Exibe o dashboard ao carregar a página
+    });
 
 </script>
 </body>
