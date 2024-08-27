@@ -8,6 +8,8 @@
     import com.example.BeverageStockMaster.repository.SecaoRepository;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.stereotype.Service;
+
+    import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.util.List;
     import java.util.stream.Collectors;
@@ -43,6 +45,12 @@
             double novaCapacidadeAtual = secao.getCapacidadeAtual() + bebida.getVolume();
             if (novaCapacidadeAtual > secao.getCapacidadeMaxima()) {
                 throw new IllegalArgumentException("Capacidade máxima da seção excedida.");
+            }
+
+            boolean secaoRecebeuComRestricaoHoje = bebidaRepository.existsBySecaoIdAndTipoBebidaRestricaoQuarentenaAndDataEntrada(
+                    secaoId, true, LocalDate.now());
+            if (bebida.getTipoBebida().isRestricaoQuarentena() && secaoRecebeuComRestricaoHoje) {
+                throw new IllegalArgumentException("Seção já recebeu bebidas com restrição de quarentena hoje e não pode receber outros tipos.");
             }
 
             // Atualizar a capacidade e o tipo de bebida na seção
@@ -124,7 +132,7 @@
             return bebidaRepository.findAll();
         }
 
-        public void deletarBebida(Long bebidaId, String responsavel) {
+        public void saidaBebida(Long bebidaId, String responsavel) {
             Bebida bebida = bebidaRepository.findById(bebidaId)
                     .orElseThrow(() -> new IllegalArgumentException("Bebida não encontrada"));
 
@@ -137,7 +145,7 @@
             }
 
             // Registrar a exclusão no histórico de movimentações
-            registrarHistorico("EXCLUSAO", bebida.getVolume(), secao, responsavel);
+            registrarHistorico("SAÍDA", bebida.getVolume(), secao, responsavel);
 
             // Excluir a bebida
             bebidaRepository.delete(bebida);
@@ -154,6 +162,15 @@
         public List<Secao> consultarLocaisDisponiveisParaVolume(double volume) {
             return secaoRepository.findAll().stream()
                     .filter(secao -> (secao.getCapacidadeMaxima() - secao.getCapacidadeAtual()) >= volume)
+                    .collect(Collectors.toList());
+        }
+
+        public List<Secao> consultarSecoesDisponiveisParaVenda(Long tipoBebidaId) {
+            // Filtra seções que possuem bebidas do tipo especificado e com volume disponível
+            return secaoRepository.findAll().stream()
+                    .filter(secao -> secao.getTipoBebida() != null
+                            && secao.getTipoBebida().getId().equals(tipoBebidaId)
+                            && secao.getCapacidadeAtual() > 0)
                     .collect(Collectors.toList());
         }
 
