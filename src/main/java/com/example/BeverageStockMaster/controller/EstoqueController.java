@@ -98,14 +98,14 @@ public class EstoqueController {
     }
 
     @DeleteMapping("/bebida/{id}")
-    public ResponseEntity<?> deletarBebida(@PathVariable Long id, @RequestParam String responsavel) {
+    public ResponseEntity<?> saidaBebida(@PathVariable Long id, @RequestParam String responsavel) {
         try {
-            estoqueService.deletarBebida(id, responsavel);
-            return ResponseEntity.ok("Bebida deletada com sucesso.");
+            estoqueService.saidaBebida(id, responsavel);
+            return ResponseEntity.ok("Saída de bebida com sucesso.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao deletar bebida.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao dar saída de bebida.");
         }
     }
 
@@ -118,6 +118,12 @@ public class EstoqueController {
     @GetMapping("/locais-disponiveis")
     public ResponseEntity<List<Secao>> consultarLocaisDisponiveis(@RequestParam double volume) {
         List<Secao> secoesDisponiveis = estoqueService.consultarLocaisDisponiveisParaVolume(volume);
+        return ResponseEntity.ok(secoesDisponiveis);
+    }
+
+    @GetMapping("/secoes-disponiveis-venda")
+    public ResponseEntity<List<Secao>> consultarSecoesDisponiveisParaVenda(@RequestParam Long tipoBebidaId) {
+        List<Secao> secoesDisponiveis = estoqueService.consultarSecoesDisponiveisParaVenda(tipoBebidaId);
         return ResponseEntity.ok(secoesDisponiveis);
     }
 }
