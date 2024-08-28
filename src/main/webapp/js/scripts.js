@@ -792,11 +792,11 @@ function analisarEstoque() {
             } else {
                 document.getElementById('analiseResultado').innerText = 'Nenhuma análise disponível. Verifique se a API-KEY da OpenIA esta ativa';
             }
-            $('#analiseModal').modal('show'); // Exibe o modal
+            $('#analiseModal').modal('show');
         })
         .catch(error => {
             console.error('Erro ao analisar o estoque:', error);
             document.getElementById('analiseResultado').innerText = 'Erro ao carregar a análise.';
-            $('#analiseModal').modal('show'); // Exibe o modal mesmo em caso de erro
+            $('#analiseModal').modal('show');
         });
 }
