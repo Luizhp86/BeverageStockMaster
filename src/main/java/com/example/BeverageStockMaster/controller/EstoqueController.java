@@ -138,16 +138,19 @@
         }
 
         @PostMapping("/analise-estoque")
-        public ResponseEntity<?> analisarEstoque() {
-            List<HistoricoMovimentacao>  historicoMovimentacao = historicoMovimentacaoService.getHistoricoAgrupado();
-
-            MessageRequest messageRequest = new MessageRequest();
-
-            String message = messageRequest.montarMessage(historicoMovimentacao);
-            String resultado = openAiService.openAiChat(message);
+        public ResponseEntity<Map<String, String>> analisarEstoque() {
+            List<HistoricoMovimentacao> historicoMovimentacao = historicoMovimentacaoService.getHistoricoAgrupado();
 
             Map<String, String> response = new HashMap<>();
-            response.put("resultado", resultado);
+
+            if (historicoMovimentacao.isEmpty()) {
+                response.put("resultado", "Não há histórico de movimentações para análise");
+            } else {
+                MessageRequest messageRequest = new MessageRequest();
+                String message = messageRequest.montarMessage(historicoMovimentacao);
+                String resultado = openAiService.openAiChat(message);
+                response.put("resultado", resultado);
+            }
 
             return ResponseEntity.ok(response);
         }
