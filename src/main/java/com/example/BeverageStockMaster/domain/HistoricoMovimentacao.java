@@ -1,4 +1,5 @@
 package com.example.BeverageStockMaster.domain;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -15,8 +16,7 @@ public class HistoricoMovimentacao {
 
         private double volume;
 
-        @ManyToOne
-        private Secao secao;
+        private String secaoNome; // Armazenar apenas o nome da seção
 
         private String responsavel;
 
@@ -25,11 +25,11 @@ public class HistoricoMovimentacao {
         }
 
         // Construtor com argumentos
-        public HistoricoMovimentacao(LocalDateTime horario, String tipoMovimentacao, double volume, Secao secao, String responsavel) {
+        public HistoricoMovimentacao(LocalDateTime horario, String tipoMovimentacao, double volume, String secaoNome, String responsavel) {
                 this.horario = horario;
                 this.tipoMovimentacao = tipoMovimentacao;
                 this.volume = volume;
-                this.secao = secao;
+                this.secaoNome = secaoNome;
                 this.responsavel = responsavel;
         }
 
@@ -66,12 +66,12 @@ public class HistoricoMovimentacao {
                 this.volume = volume;
         }
 
-        public Secao getSecao() {
-                return secao;
+        public String getSecaoNome() {
+                return secaoNome;
         }
 
-        public void setSecao(Secao secao) {
-                this.secao = secao;
+        public void setSecaoNome(String secaoNome) {
+                this.secaoNome = secaoNome;
         }
 
         public String getResponsavel() {

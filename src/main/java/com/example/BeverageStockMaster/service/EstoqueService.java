@@ -63,7 +63,7 @@
             bebidaRepository.save(bebida);
 
             // Registrar a movimentação no histórico
-            registrarHistorico("ENTRADA", bebida.getVolume(), secao, responsavel);
+            registrarHistorico("ENTRADA", bebida.getVolume(), secao.getNome(), responsavel);
         }
 
 
@@ -85,15 +85,15 @@
             bebidaRepository.delete(bebida);
             secaoRepository.save(secao);
 
-            registrarHistorico("SAIDA", bebida.getVolume(), secao, responsavel);
+            registrarHistorico("SAIDA", bebida.getVolume(), secao.getNome(), responsavel);
         }
 
-        private void registrarHistorico(String tipo, double volume, Secao secao, String responsavel) {
+        private void registrarHistorico(String tipo, double volume, String secaoNome, String responsavel) {
             HistoricoMovimentacao historico = new HistoricoMovimentacao(
                     LocalDateTime.now(),
                     tipo,
                     volume,
-                    secao,
+                    secaoNome,
                     responsavel
             );
             historicoRepository.save(historico);
@@ -145,7 +145,7 @@
             }
 
             // Registrar a exclusão no histórico de movimentações
-            registrarHistorico("SAÍDA", bebida.getVolume(), secao, responsavel);
+            registrarHistorico("SAÍDA", bebida.getVolume(), secao.getNome(), responsavel);
 
             // Excluir a bebida
             bebidaRepository.delete(bebida);

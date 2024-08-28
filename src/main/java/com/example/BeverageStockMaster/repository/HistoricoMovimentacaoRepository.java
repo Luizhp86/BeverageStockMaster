@@ -9,11 +9,10 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface HistoricoMovimentacaoRepository extends JpaRepository<HistoricoMovimentacao, Long> {
-    List<HistoricoMovimentacao> findBySecaoAndTipoMovimentacao(Secao secao, String tipoMovimentacao, Sort sort);
 
-    @Query("SELECT h.horario, h.tipoMovimentacao, SUM(h.volume), h.secao.nome, h.responsavel " +
+    @Query("SELECT h.horario, h.tipoMovimentacao, SUM(h.volume), h.secaoNome, h.responsavel " +
             "FROM HistoricoMovimentacao h " +
-            "GROUP BY h.horario, h.tipoMovimentacao, h.secao.nome, h.responsavel " +
+            "GROUP BY h.horario, h.tipoMovimentacao, h.secaoNome, h.responsavel " +
             "ORDER BY h.horario")
     List<Object[]> findHistoricoAgrupadoPorDataETipo();
 
