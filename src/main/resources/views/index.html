@@ -914,7 +914,6 @@
             return;
         }
 
-
         fetch(`/api/estoque/locais-disponiveis?volume=${volumeDesejado}`)
             .then(response => response.json())
             .then(data => {
@@ -933,7 +932,8 @@
                     const item = document.createElement('li');
                     item.className = 'list-group-item';
                     const capacidadeDisponivel = secao.capacidadeDisponivel;
-                    item.innerText = `${secao.nome} - Capacidade Disponível: ${capacidadeDisponivel} litros`;
+                    const tipoBebida = secao.tipoBebidaUtilizada ? ` - Tipo de Bebida: ${secao.tipoBebidaUtilizada}` : '';
+                    item.innerText = `${secao.nome} - Capacidade Disponível: ${capacidadeDisponivel} litros${tipoBebida}`;
                     lista.appendChild(item);
                 });
 

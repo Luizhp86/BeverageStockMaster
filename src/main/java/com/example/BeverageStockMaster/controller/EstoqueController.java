@@ -69,14 +69,16 @@
         }
 
         @GetMapping("/secoes")
-        public ResponseEntity<List<Secao>> consultarSecoesDisponiveis(@RequestParam Long tipoBebidaId, @RequestParam(required = false) Double volume) {
+        public ResponseEntity<List<Secao>> consultarSecoesDisponiveis(
+                @RequestParam(required = false) Long tipoBebidaId,
+                @RequestParam(required = false) Double volume) {
             try {
                 List<Secao> secoes;
 
-                if (volume != null) {
+                if (tipoBebidaId != null && volume != null) {
                     secoes = estoqueService.consultarSecoesDisponiveis(tipoBebidaId, volume);
                 } else {
-                    secoes = estoqueService.consultarTodasSecoes();  // Usando o novo método
+                    secoes = estoqueService.consultarTodasSecoes();
                 }
 
                 return ResponseEntity.ok(secoes);

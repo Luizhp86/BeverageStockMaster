@@ -181,7 +181,8 @@
                                 TipoBebida maiorCapacidadeTipo = tipoBebidaRepository.findAll().stream()
                                         .max(Comparator.comparingDouble(TipoBebida::getCapacidadeMaxima))
                                         .orElseThrow(() -> new IllegalArgumentException("Nenhum tipo de bebida disponível."));
-                                secao.setCapacidadeDisponivel(maiorCapacidadeTipo.getCapacidadeMaxima());  // Definindo a capacidade disponível para o maior tipo
+                                secao.setCapacidadeDisponivel(maiorCapacidadeTipo.getCapacidadeMaxima());
+                                secao.setTipoBebidaUtilizada(maiorCapacidadeTipo.getDescricao());
                                 return volume <= maiorCapacidadeTipo.getCapacidadeMaxima();
                             } else {
                                 TipoBebida tipoBebidaNaSecao = bebidas.get(0).getTipoBebida();
@@ -189,7 +190,8 @@
                                         .mapToDouble(Bebida::getVolume)
                                         .sum();
                                 double capacidadeDisponivel = tipoBebidaNaSecao.getCapacidadeMaxima() - capacidadeAtualTotal;
-                                secao.setCapacidadeDisponivel(capacidadeDisponivel);  // Definindo a capacidade disponível para a seção
+                                secao.setCapacidadeDisponivel(capacidadeDisponivel);
+                                secao.setTipoBebidaUtilizada(tipoBebidaNaSecao.getDescricao());
                                 return capacidadeDisponivel >= volume;
                             }
                         })
@@ -199,7 +201,7 @@
             public List<Secao> consultarSecoesDisponiveisParaVenda(Long tipoBebidaId) {
                 return secaoRepository.findAll().stream()
                         .filter(secao -> {
-                            // Encontre todas as bebidas na seção do tipo especificado
+
                             List<Bebida> bebidasDoTipo = bebidaRepository.findBySecao(secao).stream()
                                     .filter(bebida -> bebida.getTipoBebida().getId().equals(tipoBebidaId))
                                     .collect(Collectors.toList());
