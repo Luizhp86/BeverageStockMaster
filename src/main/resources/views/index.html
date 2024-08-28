@@ -68,8 +68,8 @@
 <div class="sidebar">
     <h3 class="text-center">Menu</h3>
     <a href="#" onclick="showDashboard()">Dashboard</a>
-    <a href="#" onclick="showRegisterForm()">Registrar Entrada de Bebida</a>
-    <a href="#" onclick="showAllBebidas()">Consultar bebidas disponíveis (Saída)</a>
+    <a href="#" onclick="showRegisterForm()">Entrada de Bebidas</a>
+    <a href="#" onclick="showAllBebidas()">Consultar / Saída Bebidas</a>
     <a href="#" onclick="showQuantidadePorSecao()">Consulta do volume total no estoque por cada tipo de bebida</a>
     <a href="#" onclick="showConfigurarTipos()">Cadastrar Tipos de Bebidas</a>
     <a href="#" onclick="showGerenciarSecoes()">Cadastrar Seções</a>
@@ -724,7 +724,7 @@
                     data.forEach(secao => {
                         const item = document.createElement('li');
                         item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                        item.textContent = `${secao.nome} - Utilização total: ${secao.utilizacaoTotal} litros`;
+                        item.textContent = `Nome seção: ${secao.nome} - Utilização total: ${secao.utilizacaoTotal} litros`;
 
                         const deleteButton = document.createElement('button');
                         deleteButton.className = 'btn btn-danger btn-sm';
