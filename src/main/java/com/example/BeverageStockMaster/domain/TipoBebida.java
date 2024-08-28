@@ -15,6 +15,7 @@ public class TipoBebida {
 
     private boolean restricaoQuarentena;
 
+    private double capacidadeMaxima; // Capacidade máxima associada ao tipo de bebida
 
     // Construtor padrão
     public TipoBebida() {}
@@ -42,5 +43,13 @@ public class TipoBebida {
 
     public void setRestricaoQuarentena(boolean restricaoQuarentena) {
         this.restricaoQuarentena = restricaoQuarentena;
+    }
+
+    public double getCapacidadeMaxima() {
+        return capacidadeMaxima;
+    }
+
+    public void setCapacidadeMaxima(double capacidadeMaxima) {
+        this.capacidadeMaxima = capacidadeMaxima;
     }
 }

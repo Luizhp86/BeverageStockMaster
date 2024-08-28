@@ -71,14 +71,16 @@ public class EstoqueController {
     }
 
     @GetMapping("/secoes")
-    public ResponseEntity<List<Secao>> consultarSecoesDisponiveis(@RequestParam(required = false) Double volume) {
+    public ResponseEntity<List<Secao>> consultarSecoesDisponiveis(@RequestParam Long tipoBebidaId, @RequestParam(required = false) Double volume) {
         try {
             List<Secao> secoes;
+
             if (volume != null) {
-                secoes = estoqueService.consultarSecoesDisponiveis(volume);
+                secoes = estoqueService.consultarSecoesDisponiveis(tipoBebidaId, volume);
             } else {
                 secoes = estoqueService.consultarTodasSecoes();  // Usando o novo método
             }
+
             return ResponseEntity.ok(secoes);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
@@ -116,8 +118,8 @@ public class EstoqueController {
     }
 
     @GetMapping("/locais-disponiveis")
-    public ResponseEntity<List<Secao>> consultarLocaisDisponiveis(@RequestParam double volume) {
-        List<Secao> secoesDisponiveis = estoqueService.consultarLocaisDisponiveisParaVolume(volume);
+    public ResponseEntity<List<Secao>> consultarLocaisDisponiveis(@RequestParam Long tipoBebidaId, @RequestParam double volume) {
+        List<Secao> secoesDisponiveis = estoqueService.consultarLocaisDisponiveisParaVolume(tipoBebidaId, volume);
         return ResponseEntity.ok(secoesDisponiveis);
     }
 

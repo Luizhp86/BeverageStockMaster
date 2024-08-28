@@ -69,7 +69,7 @@
     <h3 class="text-center">Menu</h3>
     <a href="#" onclick="showDashboard()">Dashboard</a>
     <a href="#" onclick="showRegisterForm()">Registrar Entrada de Bebida</a>
-    <a href="#" onclick="showAllBebidas()">Consultar bebidas disponíveis</a>
+    <a href="#" onclick="showAllBebidas()">Consultar bebidas disponíveis (Saída)</a>
     <a href="#" onclick="showQuantidadePorSecao()">Consulta do volume total no estoque por cada tipo de bebida</a>
     <a href="#" onclick="showConfigurarTipos()">Cadastrar Tipos de Bebidas</a>
     <a href="#" onclick="showGerenciarSecoes()">Cadastrar Seções</a>
@@ -122,12 +122,11 @@
             </div>
         </div>
         <div class="card mt-4 w-100 full-width-card">
-                <div class="card-body">
-                    <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Movimentações de Bebidas</h5>
-                    <div id="movimentacaoHistorico"></div>
-                </div>
+            <div class="card-body">
+                <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Movimentações de Bebidas</h5>
+                <div id="movimentacaoHistorico"></div>
             </div>
-
+        </div>
     </div>
 
     <!-- Seção de Configuração de Tipos de Bebidas -->
@@ -137,6 +136,10 @@
             <div class="form-group">
                 <label for="descricaoTipoBebida">Descrição do Tipo de Bebida</label>
                 <input type="text" class="form-control" id="descricaoTipoBebida" required>
+            </div>
+            <div class="form-group">
+                <label for="capacidadeMaximaBebida">Capacidade Máxima (litros)</label>
+                <input type="number" class="form-control" id="capacidadeMaximaBebida" min="0.01" step="0.01" required>
             </div>
             <div class="form-group">
                 <label for="restricaoQuarentena">Restrição Quarentena</label>
@@ -150,6 +153,7 @@
                 <thead>
                 <tr>
                     <th>Descrição</th>
+                    <th>Capacidade Máxima</th>
                     <th>Restrição de Quarentena</th>
                     <th>Ações</th>
                 </tr>
@@ -160,7 +164,6 @@
             </table>
         </div>
     </div>
-
 
     <!-- Formulário de Registro -->
     <div id="registerForm" style="display:none;">
@@ -216,16 +219,6 @@
             <div class="form-group">
                 <label for="nomeSecao">Nome da Seção</label>
                 <input type="text" class="form-control" id="nomeSecao" required>
-            </div>
-            <div class="form-group">
-                <label for="capacidadeMaxima">Capacidade Máxima (litros)</label>
-                <input type="number" class="form-control" id="capacidadeMaxima" required>
-            </div>
-            <div class="form-group">
-                <label for="tipoBebidaSecao">Tipo de Bebida</label>
-                <select class="form-control" id="tipoBebidaSecao" required>
-                    <!-- Tipos de bebidas serão carregados aqui via JavaScript -->
-                </select>
             </div>
             <button type="submit" class="btn btn-primary">Adicionar Seção</button>
         </form>
@@ -283,9 +276,8 @@
                 if (data.length > 0) {
                     data.forEach(secao => {
                         const option = document.createElement('option');
-                        option.value = secao.id; // Aqui o valor será o ID
-                        console.log(secao)
-                        option.textContent = `${secao.nome} - Capacidade Máxima: ${secao.capacidadeMaxima} litros - Tipo: ${secao.tipoBebida.descricao}`;
+                        option.value = secao.id;
+                        option.textContent = `${secao.nome} `;
                         secaoSelect.appendChild(option);
                     });
                     document.getElementById('secaoError').style.display = 'none';
@@ -324,7 +316,6 @@
     function showGerenciarSecoes() {
         hideAll();
         document.getElementById('gerenciarSecoes').style.display = 'block';
-        loadTiposBebidaSecao(); // Carrega os tipos de bebidas para a seção
         carregarSecoes(); // Carrega as seções existentes
     }
 
@@ -678,6 +669,12 @@
                         descricaoCell.textContent = tipo.descricao;searching: false,
                         row.appendChild(descricaoCell);
 
+                        // Coluna para a capacidade máxima
+                        const capacidadeCell = document.createElement('td');
+                        capacidadeCell.textContent = tipo.capacidadeMaxima + ' litros';
+                        row.appendChild(capacidadeCell);
+
+
                         // Coluna para o atributo restricaoQuarentena
                         const restricaoCell = document.createElement('td');
                         restricaoCell.textContent = tipo.restricaoQuarentena ? 'Sim' : 'Não';
@@ -733,59 +730,41 @@
             });
     }
 
-    function loadTiposBebidaSecao() {
-        const tipoBebidaSecao = document.getElementById('tipoBebidaSecao');
 
-        fetch('/api/tipos-bebidas')
+    function carregarSecoes() {
+        const listaSecoes = document.getElementById('listaSecoes');
+
+        fetch('/api/secoes')
             .then(response => response.json())
             .then(data => {
-                tipoBebidaSecao.innerHTML = ''; // Limpa o select
+                listaSecoes.innerHTML = ''; // Limpa a lista antes de adicionar novas seções
 
                 if (data.length > 0) {
-                    data.forEach(tipo => {
-                        const option = document.createElement('option');
-                        option.value = tipo.id; // Aqui o valor será o ID
-                        option.textContent = tipo.descricao;
-                        tipoBebidaSecao.appendChild(option);
+                    data.forEach(secao => {
+                        const item = document.createElement('li');
+                        item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        item.textContent = `${secao.nome} - Capacidade Atual: ${secao.capacidadeAtual} litros`;
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.className = 'btn btn-danger btn-sm';
+                        deleteButton.textContent = 'Deletar';
+                        deleteButton.onclick = () => deletarSecao(secao.id);
+
+                        item.appendChild(deleteButton);
+                        listaSecoes.appendChild(item);
                     });
                 } else {
-                    Swal.fire('Atenção!', 'Nenhum tipo de bebida disponível. Cadastre ao menos um tipo antes de criar uma seção.', 'warning');
+                    listaSecoes.innerHTML = '<li class="list-group-item">Nenhuma seção cadastrada</li>';
                 }
             })
             .catch(error => {
-                console.error('Erro ao carregar tipos de bebida para seção:', error);
-                Swal.fire('Erro!', 'Ocorreu um erro ao carregar os tipos de bebida para a seção.', 'error');
+                console.error('Erro ao carregar seções:', error);
+                Swal.fire('Erro!', 'Ocorreu um erro ao carregar as seções.', 'error');
             });
-    }
-
-    function carregarSecoes() {
-        fetch("/api/secoes")
-            .then(response => response.json())
-            .then(data => {
-                const listaSecoes = document.getElementById("listaSecoes");
-                listaSecoes.innerHTML = "";
-
-                data.forEach(secao => {
-                    const li = document.createElement("li");
-                    li.className = "list-group-item d-flex justify-content-between align-items-center";
-                    li.textContent = `${secao.nome} - Capacidade Máxima: ${secao.capacidadeMaxima} litros - Tipo: ${secao.tipoBebida.descricao}`;
-
-                    const btnDeletar = document.createElement("button");
-                    btnDeletar.className = "btn btn-danger btn-sm";
-                    btnDeletar.textContent = "Deletar";
-                    btnDeletar.addEventListener("click", () => deletarSecao(secao.id));
-
-                    li.appendChild(btnDeletar);
-                    listaSecoes.appendChild(li);
-                });
-            })
-            .catch(error => console.error("Erro ao carregar seções:", error));
     }
 
     function adicionarSecao() {
         const nomeSecao = document.getElementById("nomeSecao").value;
-        const capacidadeMaxima = document.getElementById("capacidadeMaxima").value;
-        const tipoBebidaId = document.getElementById("tipoBebidaSecao").value;
 
         fetch("/api/secoes/nova", {
             method: "POST",
@@ -794,17 +773,13 @@
             },
             body: JSON.stringify({
                 nome: nomeSecao,
-                capacidadeMaxima: capacidadeMaxima,
-                capacidadeAtual: 0,
-                tipoBebida: {
-                    id: tipoBebidaId
-                }
+                capacidadeAtual: 0 // Inicializa a capacidade atual como zero
             })
         })
             .then(response => response.text())
             .then(message => {
                 Swal.fire('Sucesso!', message, 'success');
-                carregarSecoes(); // Carrega as seções existentes
+                carregarSecoes(); // Recarrega as seções existentes
             })
             .catch(error => console.error("Erro ao adicionar seção:", error));
     }
@@ -822,12 +797,21 @@
                 fetch(`/api/secoes/${secaoId}`, {
                     method: "DELETE"
                 })
-                    .then(response => response.text())
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(errorMessage => {
+                                throw new Error(errorMessage);
+                            });
+                        }
+                        return response.text();
+                    })
                     .then(message => {
                         Swal.fire('Deletado!', message, 'success');
                         carregarSecoes();
                     })
-                    .catch(error => console.error("Erro ao deletar seção:", error));
+                    .catch(error => {
+                        Swal.fire('Erro!', error.message, 'error');
+                    });
             }
         });
     }
@@ -859,6 +843,7 @@
         event.preventDefault();
 
         const descricao = document.getElementById('descricaoTipoBebida').value;
+        const capacidadeMaxima = parseFloat(document.getElementById('capacidadeMaximaBebida').value);
         const restricaoQuarentena = document.getElementById('restricaoQuarentena').checked;
 
         fetch('/api/tipos-bebidas/nova', {
@@ -866,7 +851,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ descricao, restricaoQuarentena })
+            body: JSON.stringify({ descricao, capacidadeMaxima, restricaoQuarentena })
         })
             .then(response => {
                 if (!response.ok) {
@@ -884,7 +869,6 @@
                 Swal.fire('Erro!', 'Ocorreu um erro ao adicionar o tipo de bebida.', 'error');
             });
     });
-
     document.getElementById('entradaForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -936,17 +920,27 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadTiposBebida();  // Carrega os tipos de bebida ao carregar a página
         showDashboard();  // Exibe o dashboard ao carregar a página
+        showGerenciarSecoes(); // Exibe a tela de Gerenciar Seções e carrega as seções
+        carregarSecoes(); // Carrega as seções quando a página é carregada
+
+
     });
 
     function consultarLocaisDisponiveis() {
         const volumeDesejado = parseFloat(document.getElementById('volumeConsultaDashboard').value);
+        const tipoBebidaId = document.getElementById('tipoBebidaVenda').value; // Assumindo que há um campo select para escolher o tipo de bebida
 
         if (isNaN(volumeDesejado) || volumeDesejado <= 0) {
             Swal.fire('Erro!', 'Por favor, insira um volume válido.', 'error');
             return;
         }
 
-        fetch(`/api/estoque/locais-disponiveis?volume=${volumeDesejado}`)
+        if (!tipoBebidaId) {
+            Swal.fire('Erro!', 'Por favor, selecione um tipo de bebida.', 'error');
+            return;
+        }
+
+        fetch(`/api/estoque/locais-disponiveis?tipoBebidaId=${tipoBebidaId}&volume=${volumeDesejado}`)
             .then(response => response.json())
             .then(data => {
                 const resultadoConsulta = document.getElementById('resultadoConsultaLocais');
@@ -963,7 +957,10 @@
                 data.forEach(secao => {
                     const item = document.createElement('li');
                     item.className = 'list-group-item';
-                    item.innerText = `${secao.nome} - Capacidade Disponível: ${(secao.capacidadeMaxima - secao.capacidadeAtual)} litros - Tipo: ${secao.tipoBebida.descricao}`;
+                    const capacidadeDisponivel = tipoBebidaId && secao.capacidadeMaxima
+                        ? (secao.capacidadeMaxima - secao.capacidadeAtual)
+                        : 'Capacidade não definida';
+                    item.innerText = `${secao.nome} - Capacidade Disponível: ${capacidadeDisponivel} litros`;
                     lista.appendChild(item);
                 });
 
@@ -974,6 +971,7 @@
                 Swal.fire('Erro!', 'Ocorreu um erro ao consultar os locais disponíveis.', 'error');
             });
     }
+
     function consultarSecoesDisponiveisParaVenda() {
         const tipoBebidaId = document.getElementById('tipoBebidaVenda').value;
 

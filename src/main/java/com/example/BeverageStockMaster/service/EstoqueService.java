@@ -6,6 +6,7 @@
     import com.example.BeverageStockMaster.repository.BebidaRepository;
     import com.example.BeverageStockMaster.repository.HistoricoMovimentacaoRepository;
     import com.example.BeverageStockMaster.repository.SecaoRepository;
+    import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.stereotype.Service;
 
@@ -26,45 +27,33 @@
         @Autowired
         HistoricoMovimentacaoRepository historicoRepository;
 
+        @Autowired
+        TipoBebidaRepository tipoBebidaRepository;
 
 
         public void registrarEntradaBebida(Bebida bebida, Long secaoId, String responsavel) {
-            if (secaoId <= 0) {
-                throw new IllegalArgumentException("O número da seção deve ser positivo.");
-            }
-
             Secao secao = secaoRepository.findById(secaoId)
                     .orElseThrow(() -> new IllegalArgumentException("Seção não encontrada"));
 
-            // Verificar se a seção já contém bebidas de um tipo diferente
-            if (secao.getTipoBebida() != null && !secao.getTipoBebida().getId().equals(bebida.getTipoBebida().getId())) {
-                throw new IllegalArgumentException("A seção só pode armazenar bebidas do tipo: " + secao.getTipoBebida().getDescricao());
-            }
+            TipoBebida tipoBebida = tipoBebidaRepository.findById(bebida.getTipoBebida().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
 
-            // Calcular a nova capacidade
+            // Verifica se o tipo de bebida respeita a capacidade máxima para este tipo
             double novaCapacidadeAtual = secao.getCapacidadeAtual() + bebida.getVolume();
-            if (novaCapacidadeAtual > secao.getCapacidadeMaxima()) {
-                throw new IllegalArgumentException("Capacidade máxima da seção excedida.");
+            if (novaCapacidadeAtual > tipoBebida.getCapacidadeMaxima()) {
+                throw new IllegalArgumentException("Capacidade máxima para esse tipo de bebida excedida.");
             }
 
-            boolean secaoRecebeuComRestricaoHoje = bebidaRepository.existsBySecaoIdAndTipoBebidaRestricaoQuarentenaAndDataEntrada(
-                    secaoId, true, LocalDate.now());
-            if (bebida.getTipoBebida().isRestricaoQuarentena() && secaoRecebeuComRestricaoHoje) {
-                throw new IllegalArgumentException("Seção já recebeu bebidas com restrição de quarentena hoje e não pode receber outros tipos.");
-            }
-
-            // Atualizar a capacidade e o tipo de bebida na seção
             secao.setCapacidadeAtual(novaCapacidadeAtual);
-            secao.setTipoBebida(bebida.getTipoBebida());
-            secaoRepository.save(secao);
-
-            // Associar a bebida à seção e salvar
             bebida.setSecao(secao);
-            bebidaRepository.save(bebida);
+            bebida.setDataEntrada(LocalDate.now());
+            bebida.setResponsavel(responsavel);
 
-            // Registrar a movimentação no histórico
-            registrarHistorico("ENTRADA", bebida.getVolume(), secao.getNome(), responsavel);
+            secaoRepository.save(secao);
+            bebidaRepository.save(bebida);
         }
+
+
 
 
         public void registrarSaidaBebida(Bebida bebida, Long secaoId, String responsavel) {
@@ -112,9 +101,12 @@
             return bebidaRepository.findBySecao(secao);
         }
 
-        public List<Secao> consultarSecoesDisponiveis(double volume) {
+        public List<Secao> consultarSecoesDisponiveis(Long tipoBebidaId, double volume) {
+            TipoBebida tipoBebida = tipoBebidaRepository.findById(tipoBebidaId)
+                    .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
+
             return secaoRepository.findAll().stream()
-                    .filter(secao -> secao.getCapacidadeMaxima() - secao.getCapacidadeAtual() >= volume)
+                    .filter(secao -> (secao.getCapacidadeAtual() + volume) <= tipoBebida.getCapacidadeMaxima())
                     .collect(Collectors.toList());
         }
 
@@ -159,18 +151,21 @@
             return secaoRepository.findAll();
         }
 
-        public List<Secao> consultarLocaisDisponiveisParaVolume(double volume) {
+        public List<Secao> consultarLocaisDisponiveisParaVolume(Long tipoBebidaId, double volume) {
+            TipoBebida tipoBebida = tipoBebidaRepository.findById(tipoBebidaId)
+                    .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
+
             return secaoRepository.findAll().stream()
-                    .filter(secao -> (secao.getCapacidadeMaxima() - secao.getCapacidadeAtual()) >= volume)
+                    .filter(secao -> (tipoBebida.getCapacidadeMaxima() - secao.getCapacidadeAtual()) >= volume)
                     .collect(Collectors.toList());
         }
 
         public List<Secao> consultarSecoesDisponiveisParaVenda(Long tipoBebidaId) {
-            // Filtra seções que possuem bebidas do tipo especificado e com volume disponível
+            // Encontre todas as seções que contêm bebidas do tipo especificado e que têm volume disponível
             return secaoRepository.findAll().stream()
-                    .filter(secao -> secao.getTipoBebida() != null
-                            && secao.getTipoBebida().getId().equals(tipoBebidaId)
-                            && secao.getCapacidadeAtual() > 0)
+                    .filter(secao -> bebidaRepository.findBySecao(secao).stream()
+                            .anyMatch(bebida -> bebida.getTipoBebida().getId().equals(tipoBebidaId))
+                    )
                     .collect(Collectors.toList());
         }
 

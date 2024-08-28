@@ -1,5 +1,9 @@
 package com.example.BeverageStockMaster.domain;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Secao {
@@ -9,10 +13,8 @@ public class Secao {
 
         private String nome;
         private double capacidadeAtual;
-        private double capacidadeMaxima;
 
-        @ManyToOne
-        private TipoBebida tipoBebida;
+        // Removido o campo tipoBebida
 
         // Getters e Setters
         public Long getId() {
@@ -39,19 +41,5 @@ public class Secao {
                 this.capacidadeAtual = capacidadeAtual;
         }
 
-        public double getCapacidadeMaxima() {
-                return capacidadeMaxima;
-        }
 
-        public void setCapacidadeMaxima(double capacidadeMaxima) {
-                this.capacidadeMaxima = capacidadeMaxima;
-        }
-
-        public TipoBebida getTipoBebida() {
-                return tipoBebida;
-        }
-
-        public void setTipoBebida(TipoBebida tipoBebida) {
-                this.tipoBebida = tipoBebida;
-        }
 }

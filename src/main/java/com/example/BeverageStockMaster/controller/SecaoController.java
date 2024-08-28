@@ -4,6 +4,7 @@ import com.example.BeverageStockMaster.domain.TipoBebida;
 import com.example.BeverageStockMaster.repository.SecaoRepository;
 import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,14 +23,10 @@ public class SecaoController {
 
     @PostMapping("/nova")
     public ResponseEntity<String> criarSecao(@RequestBody Secao secao) {
-        if (secao.getTipoBebida() == null || secao.getTipoBebida().getId() == null) {
-            return ResponseEntity.badRequest().body("Nenhum tipo de bebida disponível. Cadastre um tipo antes de criar uma seção.");
-        }
+        // Inicializa a capacidade atual como zero
+        secao.setCapacidadeAtual(0);
 
-        TipoBebida tipoBebida = tipoBebidaRepository.findById(secao.getTipoBebida().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
-
-        secao.setTipoBebida(tipoBebida);
+        // Salva a seção (sem capacidade máxima, pois isso agora é gerido pelo tipo de bebida)
         secaoRepository.save(secao);
         return ResponseEntity.ok("Seção criada com sucesso.");
     }
@@ -42,7 +39,11 @@ public class SecaoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletarSecao(@PathVariable Long id) {
-        secaoRepository.deleteById(id);
-        return ResponseEntity.ok("Seção deletada com sucesso.");
+        try {
+            secaoRepository.deleteById(id);
+            return ResponseEntity.ok("Seção deletada com sucesso.");
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("Erro: Não é possível deletar uma seção que contém bebidas cadastradas.");
+        }
     }
 }
