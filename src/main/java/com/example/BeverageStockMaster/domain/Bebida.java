@@ -1,82 +1,84 @@
-package com.example.BeverageStockMaster.domain;
+    package com.example.BeverageStockMaster.domain;
+    import jakarta.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+    import java.time.LocalDate;
 
-@Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "tipo_discriminador")
-public class Bebida {
+    @Entity
+    @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+    @DiscriminatorColumn(name = "tipo_discriminador")
+    public class Bebida {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
-    private String nome;
+        private String nome;
 
-    private double volume;
+        private double volume;
 
-    @Enumerated(EnumType.STRING)
-    private TipoBebida tipoBebida;
+        @ManyToOne
+        TipoBebida tipoBebida;
 
-    @ManyToOne
-    private Secao secao;
+        @ManyToOne
+        private Secao secao;
 
-    // Getters e Setters
-    public Long getId() {
-        return id;
-    }
+        private String responsavel;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+        private LocalDate dataEntrada;
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public double getVolume() {
-        return volume;
-    }
-
-    public void setVolume(double volume) {
-        this.volume = volume;
-    }
-
-    public TipoBebida getTipoBebida() {
-        return tipoBebida;
-    }
-
-    public void setTipoBebida(TipoBebida tipoBebida) {
-        this.tipoBebida = tipoBebida;
-    }
-
-    public Secao getSecao() {
-        return secao;
-    }
-
-    public void setSecao(Secao secao) {
-        this.secao = secao;
-    }
-
-    // Enum TipoBebida
-    public enum TipoBebida {
-        ALCOOLICA("Alcoólica"),
-        NAO_ALCOOLICA("Não Alcoólica");
-
-        private final String descricao;
-        //entro com o enum e retona a descrição
-        TipoBebida(String descricao) {
-            this.descricao = descricao;
+        public Long getId() {
+            return id;
         }
 
-        public String getDescricao() {
-            return descricao;
+        public void setId(Long id) {
+            this.id = id;
         }
 
+        public String getNome() {
+            return nome;
+        }
+
+        public void setNome(String nome) {
+            this.nome = nome;
+        }
+
+        public double getVolume() {
+            return volume;
+        }
+
+        public void setVolume(double volume) {
+            this.volume = volume;
+        }
+
+        public TipoBebida getTipoBebida() {
+            return tipoBebida;
+        }
+
+        public void setTipoBebida(TipoBebida tipoBebida) {
+            this.tipoBebida = tipoBebida;
+        }
+
+        public Secao getSecao() {
+            return secao;
+        }
+
+        public void setSecao(Secao secao) {
+            this.secao = secao;
+        }
+
+        public String getResponsavel() {
+            return responsavel;
+        }
+
+        public void setResponsavel(String responsavel) {
+            this.responsavel = responsavel;
+        }
+
+        public LocalDate getDataEntrada() {
+            return dataEntrada;
+        }
+
+        public void setDataEntrada(LocalDate dataEntrada) {
+            this.dataEntrada = dataEntrada;
+        }
     }
-}

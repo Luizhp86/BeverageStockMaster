@@ -12,29 +12,30 @@ public class HistoricoMovimentacao {
 
         private LocalDateTime horario;
 
-        private String tipoMovimentacao; // "ENTRADA" ou "SAIDA"
+        private String tipoMovimentacao;
 
         private double volume;
 
-        @ManyToOne
-        private Secao secao;
+        private String secaoNome;
 
         private String responsavel;
 
-        // Construtor padrão (necessário para JPA)
+        private String tipoBebidaNome;
+
+
         public HistoricoMovimentacao() {
         }
 
-        // Construtor com argumentos
-        public HistoricoMovimentacao(LocalDateTime horario, String tipoMovimentacao, double volume, Secao secao, String responsavel) {
+        public HistoricoMovimentacao(LocalDateTime horario, String tipoMovimentacao, double volume, String secaoNome, String responsavel, String tipoBebidaNome) {
                 this.horario = horario;
                 this.tipoMovimentacao = tipoMovimentacao;
                 this.volume = volume;
-                this.secao = secao;
+                this.secaoNome = secaoNome;
                 this.responsavel = responsavel;
+                this.tipoBebidaNome = tipoBebidaNome;
         }
 
-        // Getters e Setters
+
         public Long getId() {
                 return id;
         }
@@ -67,12 +68,12 @@ public class HistoricoMovimentacao {
                 this.volume = volume;
         }
 
-        public Secao getSecao() {
-                return secao;
+        public String getSecaoNome() {
+                return secaoNome;
         }
 
-        public void setSecao(Secao secao) {
-                this.secao = secao;
+        public void setSecaoNome(String secaoNome) {
+                this.secaoNome = secaoNome;
         }
 
         public String getResponsavel() {
@@ -81,5 +82,13 @@ public class HistoricoMovimentacao {
 
         public void setResponsavel(String responsavel) {
                 this.responsavel = responsavel;
+        }
+
+        public String getTipoBebidaNome() {
+                return tipoBebidaNome;
+        }
+
+        public void setTipoBebidaNome(String tipoBebidaNome) {
+                this.tipoBebidaNome = tipoBebidaNome;
         }
 }

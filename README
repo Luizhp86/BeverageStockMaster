@@ -1,5 +1,91 @@
-Uso de Java 21
-    -Records para reduzir a verbosidade de classes de modelo
+Gestão de Estoque de Bebidas
+Esta aplicação é um sistema de gestão de estoque de bebidas que permite registrar a entrada e saída de bebidas, gerenciar seções de armazenamento, cadastrar tipos de bebidas, e visualizar estatísticas e movimentações de estoque.
 
 
-    Inteligencia Artificial
+Abra o navegador e acesse http://localhost:8080/.
+
+
+Funcionalidades
+Dashboard: Exibe um resumo do estoque, incluindo volume total armazenado, quantidade de seções, e movimentações recentes.
+Registro de Entrada de Bebidas: Permite registrar a entrada de novas bebidas no estoque, especificando o tipo, volume, seção de armazenamento e responsável pela entrada.
+Registro de Saída de Bebidas: Permite registrar a saída de bebidas do estoque, especificando a bebida, seção, e o responsável pela saída.
+Consulta de Bebidas Disponíveis: Exibe todas as bebidas disponíveis no estoque, com a opção de registrar a saída.
+Consulta de Volume por Seção: Exibe o volume total de cada tipo de bebida armazenado em cada seção.
+Cadastro de Tipos de Bebidas: Permite cadastrar novos tipos de bebidas, definindo a capacidade máxima de armazenamento e se há restrição de quarentena.
+Gerenciamento de Seções: Permite cadastrar, listar e deletar seções de armazenamento.
+Tecnologias Utilizadas
+Backend: Spring Boot, Spring MVC, Spring Data JPA
+Banco de Dados: H2
+Frontend: HTML, CSS (Bootstrap), JavaScript (jQuery, SweetAlert)
+Controle de Versão: Git
+Build/Dependências: Maven
+Estrutura do Projeto
+src/main/java/com/example/BeverageStockMaster/
+
+config/: Configurações de mapeamento de rotas e arquivos estáticos.
+controller/: Controladores REST que expõem as APIs para o frontend.
+domain/: Classes de domínio que representam as entidades do sistema.
+repository/: Interfaces de repositórios JPA para acesso ao banco de dados.
+service/: Contém a lógica de negócio da aplicação.
+src/main/resources/views/
+
+index.html: Página principal da aplicação.
+css/: Arquivos de estilo (CSS) utilizados no frontend.
+js/: Scripts JavaScript para manipulação de dados e interação com as APIs.
+Configuração e Execução
+Pré-requisitos
+JDK 17+
+Maven 3.6+
+Git
+Passos para Rodar a Aplicação
+Clone o repositório:
+
+bash
+Copiar código
+git clone https://github.com/seu-usuario/beverage-stock-master.git
+cd beverage-stock-master
+Configure o banco de dados H2:
+
+A aplicação já está configurada para usar o banco de dados H2 em modo "in-memory".
+O arquivo de configuração src/main/resources/application.properties contém as seguintes propriedades:
+properties
+Copiar código
+spring.datasource.url=jdbc:h2:mem:beverage_stock_db;DB_CLOSE_DELAY=-1
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+Instale as dependências e compile o projeto:
+
+bash
+Copiar código
+mvn clean install
+Execute a aplicação:
+
+bash
+Copiar código
+mvn spring-boot:run
+Acesse a aplicação:
+
+Abra o navegador e acesse http://localhost:8080/.
+
+O console do H2 está disponível em http://localhost:8080/h2-console. Use o JDBC URL jdbc:h2:mem:estoque_bebidas, usuário sa e senha vazia para acessar.
+Endpoints da API
+GET /api/estoque/todas-bebidas: Lista todas as bebidas no estoque.
+POST /api/estoque/entrada: Registra a entrada de uma nova bebida.
+POST /api/estoque/saida: Registra a saída de uma bebida.
+GET /api/estoque/volume-total: Consulta o volume total de bebidas no estoque.
+GET /api/secoes: Lista todas as seções cadastradas.
+POST /api/secoes/nova: Cadastra uma nova seção.
+DELETE /api/secoes/{id}: Deleta uma seção pelo ID.
+POST /api/tipos-bebidas/nova: Cadastra um novo tipo de bebida.
+DELETE /api/tipos-bebidas/{id}: Deleta um tipo de bebida pelo ID.
+Licença
+Este projeto é distribuído sob a licença MIT. Consulte o arquivo LICENSE para obter mais informações.
+
+Contribuição
+Contribuições são bem-vindas! Sinta-se à vontade para enviar pull requests ou abrir issues no GitHub.
+
+Contato
+luizhenrique.pinotti@gmail.com

@@ -1,8 +1,10 @@
 package com.example.BeverageStockMaster.domain;
 
-import jakarta.persistence.*;
-
-import java.util.List;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import org.springframework.data.annotation.Transient;
 
 @Entity
 public class Secao {
@@ -11,22 +13,12 @@ public class Secao {
         private Long id;
 
         private String nome;
-        private double capacidadeAtual;
-        private double capacidadeMaxima;
+        private double utilizacaoTotal;
+
+        @Transient
+        private double capacidadeDisponivel;
 
 
-        // Default constructor
-        public Secao() {}
-
-        // Constructor with arguments
-        public Secao(Long id, String nome, double capacidadeAtual, double capacidadeMaxima, List<Bebida> bebidas) {
-                this.id = id;
-                this.nome = nome;
-                this.capacidadeAtual = capacidadeAtual;
-                this.capacidadeMaxima = capacidadeMaxima;
-        }
-
-        // Getters and Setters
         public Long getId() {
                 return id;
         }
@@ -43,21 +35,19 @@ public class Secao {
                 this.nome = nome;
         }
 
-        public double getCapacidadeAtual() {
-                return capacidadeAtual;
+        public double getUtilizacaoTotal() {
+                return utilizacaoTotal;
         }
 
-        public void setCapacidadeAtual(double capacidadeAtual) {
-                this.capacidadeAtual = capacidadeAtual;
+        public void setUtilizacaoTotal(double utilizacaoTotal) {
+                this.utilizacaoTotal = utilizacaoTotal;
         }
 
-        public double getCapacidadeMaxima() {
-                return capacidadeMaxima;
+        public double getCapacidadeDisponivel() {
+                return capacidadeDisponivel;
         }
 
-        public void setCapacidadeMaxima(double capacidadeMaxima) {
-                this.capacidadeMaxima = capacidadeMaxima;
+        public void setCapacidadeDisponivel(double capacidadeDisponivel) {
+                this.capacidadeDisponivel = capacidadeDisponivel;
         }
-
-
 }
