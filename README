@@ -12,6 +12,7 @@ Considerações do desenvolvedor
 -Para a entrada de bebidas, o volume deve ser maior que zero;
 -Tipos de bebidas com restrição de quarentena não podem ser armazenados em seções com bebidas de outros tipos no mesmo dia caso ela tenha tido saídas até ficar vazia;
 -Restrição de quarentena = bebidas alcoolicas;
+-Analise de Estoque com I.A. é um rascunho dessa ferramenta nova funcionalidade para insights rápidos de negócio em aplicações futuras;
 
 
 
