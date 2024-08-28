@@ -556,6 +556,7 @@
                 const tabela = document.createElement('table');
                 tabela.className = 'table table-bordered';
                 tabela.id = 'movimentacaoHistoricoTable';  // Adicionando ID à tabela
+
                 const thead = document.createElement('thead');
                 const trHead = document.createElement('tr');
 
@@ -563,25 +564,25 @@
                 thHorario.innerText = 'Horário';
                 trHead.appendChild(thHorario);
 
-                const thTipo = document.createElement('th');
-                const tipoBebidaTitle = document.createElement('div');
-                tipoBebidaTitle.innerText = 'Tipo de Bebida'; // Título fora do filtro
-                thTipo.appendChild(tipoBebidaTitle);
-                trHead.appendChild(thTipo);
+                const thTipoMovimentacao = document.createElement('th');
+                thTipoMovimentacao.innerText = 'Tipo de Movimentação';
+                trHead.appendChild(thTipoMovimentacao);
 
                 const thVolume = document.createElement('th');
                 thVolume.innerText = 'Volume';
                 trHead.appendChild(thVolume);
 
                 const thSecao = document.createElement('th');
-                const secaoTitle = document.createElement('div');
-                secaoTitle.innerText = 'Seção'; // Título fora do filtro
-                thSecao.appendChild(secaoTitle);
+                thSecao.innerText = 'Seção';
                 trHead.appendChild(thSecao);
 
                 const thResponsavel = document.createElement('th');
                 thResponsavel.innerText = 'Responsável';
                 trHead.appendChild(thResponsavel);
+
+                const thTipoBebida = document.createElement('th');
+                thTipoBebida.innerText = 'Tipo de Bebida';
+                trHead.appendChild(thTipoBebida);
 
                 thead.appendChild(trHead);
                 tabela.appendChild(thead);
@@ -595,9 +596,9 @@
                     tdHorario.innerText = new Date(item[0]).toLocaleString();
                     tr.appendChild(tdHorario);
 
-                    const tdTipo = document.createElement('td');
-                    tdTipo.innerText = item[1];
-                    tr.appendChild(tdTipo);
+                    const tdTipoMovimentacao = document.createElement('td');
+                    tdTipoMovimentacao.innerText = item[1];
+                    tr.appendChild(tdTipoMovimentacao);
 
                     const tdVolume = document.createElement('td');
                     tdVolume.innerText = item[2];
@@ -610,6 +611,10 @@
                     const tdResponsavel = document.createElement('td');
                     tdResponsavel.innerText = item[4] ? item[4] : 'Não Informado';
                     tr.appendChild(tdResponsavel);
+
+                    const tdTipoBebida = document.createElement('td');
+                    tdTipoBebida.innerText = item[5] ? item[5] : 'Desconhecido';
+                    tr.appendChild(tdTipoBebida);
 
                     tbody.appendChild(tr);
                 });
@@ -624,7 +629,7 @@
                         url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/Portuguese.json'  // Para exibir em português
                     },
                     initComplete: function () {
-                        this.api().columns([1, 3]).every(function () {
+                        this.api().columns([1, 3, 5]).every(function () {
                             var column = this;
                             var select = $('<select><option value=""></option></select>')
                                 .appendTo($(column.header()))

@@ -17,7 +17,7 @@
         private double volume;
 
         @ManyToOne
-        private TipoBebida tipoBebida;
+        TipoBebida tipoBebida;
 
         @ManyToOne
         private Secao secao;

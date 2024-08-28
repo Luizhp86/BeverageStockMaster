@@ -20,18 +20,23 @@ public class HistoricoMovimentacao {
 
         private String responsavel;
 
+        private String tipoBebidaNome; // Armazenar o nome do tipo de bebida
+
+
         // Construtor padrão (necessário para JPA)
         public HistoricoMovimentacao() {
         }
 
         // Construtor com argumentos
-        public HistoricoMovimentacao(LocalDateTime horario, String tipoMovimentacao, double volume, String secaoNome, String responsavel) {
+        public HistoricoMovimentacao(LocalDateTime horario, String tipoMovimentacao, double volume, String secaoNome, String responsavel, String tipoBebidaNome) {
                 this.horario = horario;
                 this.tipoMovimentacao = tipoMovimentacao;
                 this.volume = volume;
                 this.secaoNome = secaoNome;
                 this.responsavel = responsavel;
+                this.tipoBebidaNome = tipoBebidaNome;
         }
+
 
         // Getters e Setters
         public Long getId() {
@@ -80,5 +85,13 @@ public class HistoricoMovimentacao {
 
         public void setResponsavel(String responsavel) {
                 this.responsavel = responsavel;
+        }
+
+        public String getTipoBebidaNome() {
+                return tipoBebidaNome;
+        }
+
+        public void setTipoBebidaNome(String tipoBebidaNome) {
+                this.tipoBebidaNome = tipoBebidaNome;
         }
 }

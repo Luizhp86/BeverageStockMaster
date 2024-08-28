@@ -3,6 +3,8 @@ package com.example.BeverageStockMaster.repository;
 import com.example.BeverageStockMaster.domain.TipoBebida;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface TipoBebidaRepository extends JpaRepository<TipoBebida, Long> {
-    boolean existsByDescricao(String descricao);
+    Optional<TipoBebida> findByDescricaoAndRestricaoQuarentena(String descricao, boolean restricaoQuarentena);
 }
