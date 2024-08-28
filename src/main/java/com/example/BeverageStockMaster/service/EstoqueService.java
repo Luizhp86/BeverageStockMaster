@@ -53,6 +53,8 @@
 
             secaoRepository.save(secao);
             bebidaRepository.save(bebida);
+            registrarHistorico("ENTRADA", bebida.getVolume(), secao.getNome(), responsavel);
+
         }
 
 
@@ -180,11 +182,30 @@
         }
 
         public List<Secao> consultarSecoesDisponiveisParaVenda(Long tipoBebidaId) {
-            // Encontre todas as seções que contêm bebidas do tipo especificado e que têm volume disponível
             return secaoRepository.findAll().stream()
-                    .filter(secao -> bebidaRepository.findBySecao(secao).stream()
-                            .anyMatch(bebida -> bebida.getTipoBebida().getId().equals(tipoBebidaId))
-                    )
+                    .filter(secao -> {
+                        // Encontre todas as bebidas na seção do tipo especificado
+                        List<Bebida> bebidasDoTipo = bebidaRepository.findBySecao(secao).stream()
+                                .filter(bebida -> bebida.getTipoBebida().getId().equals(tipoBebidaId))
+                                .collect(Collectors.toList());
+
+                        if (bebidasDoTipo.isEmpty()) {
+                            return false;  // Se não houver bebidas do tipo especificado, ignora essa seção
+                        }
+
+                        // Calcula a capacidade disponível na seção
+                        double capacidadeAtualTotal = bebidasDoTipo.stream()
+                                .mapToDouble(Bebida::getVolume)
+                                .sum();
+
+                        // Verifica se ainda há espaço disponível na seção
+                        TipoBebida tipoBebida = bebidasDoTipo.get(0).getTipoBebida();
+                        double capacidadeDisponivel = tipoBebida.getCapacidadeMaxima() - capacidadeAtualTotal;
+
+                        secao.setCapacidadeDisponivel(capacidadeDisponivel);  // Definindo a capacidade disponível para a seção
+
+                        return capacidadeDisponivel > 0;  // Só retorna a seção se ainda tiver capacidade disponível
+                    })
                     .collect(Collectors.toList());
         }
 

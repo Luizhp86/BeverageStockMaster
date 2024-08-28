@@ -922,6 +922,7 @@
         showDashboard();  // Exibe o dashboard ao carregar a página
         showGerenciarSecoes(); // Exibe a tela de Gerenciar Seções e carrega as seções
         carregarSecoes(); // Carrega as seções quando a página é carregada
+        carregarTiposBebida();
 
 
     });
@@ -990,7 +991,7 @@
                 data.forEach(secao => {
                     const item = document.createElement('li');
                     item.className = 'list-group-item';
-                    item.innerText = `${secao.nome} - Capacidade Disponível: ${secao.capacidadeAtual} litros`;
+                    item.innerText = `${secao.nome} - Capacidade Disponível: ${secao.capacidadeDisponivel} litros`;
                     lista.appendChild(item);
                 });
 
@@ -1002,7 +1003,30 @@
             });
     }
 
+    function carregarTiposBebida() {
+        const tipoBebidaSelect = document.getElementById('tipoBebidaVenda');
 
+        fetch('/api/tipos-bebidas')
+            .then(response => response.json())
+            .then(data => {
+                tipoBebidaSelect.innerHTML = ''; // Limpa o select
+
+                if (data.length > 0) {
+                    data.forEach(tipo => {
+                        const option = document.createElement('option');
+                        option.value = tipo.id;
+                        option.textContent = tipo.descricao;
+                        tipoBebidaSelect.appendChild(option);
+                    });
+                } else {
+                    tipoBebidaSelect.innerHTML = '<option value="">Nenhum tipo de bebida disponível</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar tipos de bebida:', error);
+                Swal.fire('Erro!', 'Ocorreu um erro ao carregar os tipos de bebida.', 'error');
+            });
+    }
 </script>
 </body>
 </html>
