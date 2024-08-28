@@ -35,7 +35,7 @@ public class MessageRequest {
         }
 
         return String.format(
-                "Faça uma análise da movimentação de estoque e me responda de forma sintética em texto com sugestões de compra com base no historico.  Histórico de movimentação: %s",
+                "Faça uma análise da movimentação de estoque; Me responda de forma sintética em texto as sugestões de compra com base no historico. %s",
                 historicoJson
         );
     }
