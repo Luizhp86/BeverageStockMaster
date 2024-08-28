@@ -16,11 +16,9 @@ public class Secao {
         private double utilizacaoTotal;
 
         @Transient
-        private double capacidadeDisponivel;  // Campo temporário para cálculo da capacidade disponível
+        private double capacidadeDisponivel;
 
-        // Removido o campo tipoBebida
 
-        // Getters e Setters
         public Long getId() {
                 return id;
         }

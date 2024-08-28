@@ -1,6 +1,5 @@
 package com.example.BeverageStockMaster.controller;
 import com.example.BeverageStockMaster.domain.Secao;
-import com.example.BeverageStockMaster.domain.TipoBebida;
 import com.example.BeverageStockMaster.repository.SecaoRepository;
 import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +22,8 @@ public class SecaoController {
 
     @PostMapping("/nova")
     public ResponseEntity<String> criarSecao(@RequestBody Secao secao) {
-        // Inicializa a capacidade atual como zero
         secao.setUtilizacaoTotal(0);
 
-        // Salva a seção (sem capacidade máxima, pois isso agora é gerido pelo tipo de bebida)
         secaoRepository.save(secao);
         return ResponseEntity.ok("Seção criada com sucesso.");
     }

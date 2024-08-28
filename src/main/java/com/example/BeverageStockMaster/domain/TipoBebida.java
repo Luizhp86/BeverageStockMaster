@@ -15,12 +15,10 @@ public class TipoBebida {
 
     private boolean restricaoQuarentena;
 
-    private double capacidadeMaxima; // Capacidade máxima associada ao tipo de bebida
+    private double capacidadeMaxima;
 
-    // Construtor padrão
     public TipoBebida() {}
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }

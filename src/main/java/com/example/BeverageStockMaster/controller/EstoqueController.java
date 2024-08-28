@@ -31,10 +31,8 @@ public class EstoqueController {
             estoqueService.registrarEntradaBebida(bebida, secaoId, responsavel);
             return ResponseEntity.ok("Entrada registrada com sucesso.");
         } catch (IllegalArgumentException e) {
-            // Retorna a mensagem de erro personalizada com status 400
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // Lida com outras exceções
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro ao registrar a entrada.");
         }
     }

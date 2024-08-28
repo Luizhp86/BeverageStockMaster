@@ -12,22 +12,20 @@ public class HistoricoMovimentacao {
 
         private LocalDateTime horario;
 
-        private String tipoMovimentacao; // "ENTRADA" ou "SAIDA"
+        private String tipoMovimentacao;
 
         private double volume;
 
-        private String secaoNome; // Armazenar apenas o nome da seção
+        private String secaoNome;
 
         private String responsavel;
 
-        private String tipoBebidaNome; // Armazenar o nome do tipo de bebida
+        private String tipoBebidaNome;
 
 
-        // Construtor padrão (necessário para JPA)
         public HistoricoMovimentacao() {
         }
 
-        // Construtor com argumentos
         public HistoricoMovimentacao(LocalDateTime horario, String tipoMovimentacao, double volume, String secaoNome, String responsavel, String tipoBebidaNome) {
                 this.horario = horario;
                 this.tipoMovimentacao = tipoMovimentacao;
@@ -38,7 +36,6 @@ public class HistoricoMovimentacao {
         }
 
 
-        // Getters e Setters
         public Long getId() {
                 return id;
         }

@@ -39,10 +39,8 @@
                 TipoBebida tipoBebida = tipoBebidaRepository.findById(bebida.getTipoBebida().getId())
                         .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
 
-                // Verifica se a seção já contém bebidas
                 List<Bebida> bebidasNaSecao = bebidaRepository.findBySecao(secao);
                 if (!bebidasNaSecao.isEmpty()) {
-                    // Verifica se o tipo de bebida é o mesmo das bebidas já existentes na seção
                     TipoBebida tipoBebidaNaSecao = bebidasNaSecao.get(0).getTipoBebida();
                     if (!tipoBebidaNaSecao.equals(tipoBebida)) {
                         throw new IllegalArgumentException("Não é permitido cadastrar uma bebida de tipo diferente na mesma seção.");
@@ -60,12 +58,11 @@
                     boolean restricaoHoje = false; // Inicialmente, assumimos que não há restrição
 
                     for (HistoricoMovimentacao movimentacao : historicoMovimentacaos) {
-                        // Verifica se o tipo de bebida tem restrição de quarentena
                         Optional<TipoBebida> verificacaoBebida = tipoBebidaRepository.findByDescricaoAndRestricaoQuarentena(movimentacao.getTipoBebidaNome(), true);
 
                         if (verificacaoBebida.isPresent() && verificacaoBebida.get().isRestricaoQuarentena() && !verificacaoBebida.get().equals(tipoBebida)) {
-                            restricaoHoje = true; // Se houver restrição, definimos restricaoHoje como true
-                            break; // Não há necessidade de continuar verificando, podemos parar o loop
+                            restricaoHoje = true;
+                            break;
                         }
                     }
 
@@ -74,7 +71,6 @@
                     }
                 }
 
-                // Verifica se o tipo de bebida respeita a capacidade máxima para este tipo
                 double novaCapacidadeAtual = secao.getUtilizacaoTotal() + bebida.getVolume();
                 if (novaCapacidadeAtual > tipoBebida.getCapacidadeMaxima()) {
                     throw new IllegalArgumentException("Capacidade máxima para esse tipo de bebida excedida.");
@@ -102,7 +98,6 @@
                     throw new IllegalArgumentException("A bebida não pertence a essa seção.");
                 }
 
-                // Atualizar a capacidade atual da seção
                 double novaCapacidadeAtual = secao.getUtilizacaoTotal() - bebida.getVolume();
                 secao.setUtilizacaoTotal(novaCapacidadeAtual);
                 bebidaRepository.delete(bebida);
@@ -123,12 +118,6 @@
                 historicoRepository.save(historico);
             }
 
-            public double consultarVolumeTotalPorTipo(TipoBebida tipoBebida) {
-                return bebidaRepository.findAll().stream()
-                        .filter(bebida -> bebida.getTipoBebida().equals(tipoBebida))
-                        .mapToDouble(Bebida::getVolume)
-                        .sum();
-            }
 
             public List<Bebida> consultarBebidasPorSecao(Long secaoId) {
                 Secao secao = secaoRepository.findById(secaoId)
@@ -165,16 +154,13 @@
 
                 Secao secao = bebida.getSecao();
                 if (secao != null) {
-                    // Atualizar a capacidade atual da seção
                     double novaCapacidadeAtual = secao.getUtilizacaoTotal() - bebida.getVolume();
                     secao.setUtilizacaoTotal(novaCapacidadeAtual);
                     secaoRepository.save(secao);
                 }
 
-                // Registrar a exclusão no histórico de movimentações
                 registrarHistorico("SAÍDA", bebida.getVolume(), secao.getNome(), responsavel, bebida.getTipoBebida().getDescricao());
 
-                // Excluir a bebida
                 bebidaRepository.delete(bebida);
             }
 
@@ -192,14 +178,12 @@
                             List<Bebida> bebidas = bebidaRepository.findBySecaoId(secao.getId());
 
                             if (bebidas.isEmpty()) {
-                                // Se a seção estiver vazia, utilizar o tipo de bebida com maior capacidade máxima
                                 TipoBebida maiorCapacidadeTipo = tipoBebidaRepository.findAll().stream()
                                         .max(Comparator.comparingDouble(TipoBebida::getCapacidadeMaxima))
                                         .orElseThrow(() -> new IllegalArgumentException("Nenhum tipo de bebida disponível."));
                                 secao.setCapacidadeDisponivel(maiorCapacidadeTipo.getCapacidadeMaxima());  // Definindo a capacidade disponível para o maior tipo
                                 return volume <= maiorCapacidadeTipo.getCapacidadeMaxima();
                             } else {
-                                // Se a seção tiver bebidas, considerar a capacidade máxima do tipo de bebida presente na seção
                                 TipoBebida tipoBebidaNaSecao = bebidas.get(0).getTipoBebida();
                                 double capacidadeAtualTotal = bebidas.stream()
                                         .mapToDouble(Bebida::getVolume)
@@ -221,21 +205,19 @@
                                     .collect(Collectors.toList());
 
                             if (bebidasDoTipo.isEmpty()) {
-                                return false;  // Se não houver bebidas do tipo especificado, ignora essa seção
+                                return false;
                             }
 
-                            // Calcula a capacidade disponível na seção
                             double capacidadeAtualTotal = bebidasDoTipo.stream()
                                     .mapToDouble(Bebida::getVolume)
                                     .sum();
 
-                            // Verifica se ainda há espaço disponível na seção
                             TipoBebida tipoBebida = bebidasDoTipo.get(0).getTipoBebida();
                             double capacidadeDisponivel = tipoBebida.getCapacidadeMaxima() - capacidadeAtualTotal;
 
-                            secao.setCapacidadeDisponivel(capacidadeDisponivel);  // Definindo a capacidade disponível para a seção
+                            secao.setCapacidadeDisponivel(capacidadeDisponivel);
 
-                            return capacidadeDisponivel > 0;  // Só retorna a seção se ainda tiver capacidade disponível
+                            return capacidadeDisponivel > 0;
                         })
                         .collect(Collectors.toList());
             }
