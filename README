@@ -12,6 +12,7 @@ Considerações do desenvolvedor
 -Para a entrada de bebidas, o volume deve ser maior que zero;
 -Tipos de bebidas com restrição de quarentena não podem ser armazenados em seções com bebidas de outros tipos no mesmo dia caso ela tenha tido saídas até ficar vazia;
 -Restrição de quarentena = bebidas alcoolicas;
+-Analise de Estoque com I.A. funciona com uma chave válida da open IA em application.properties;
 
 
 
@@ -23,6 +24,9 @@ Consulta de Bebidas Disponíveis: Exibe todas as bebidas disponíveis no estoque
 Consulta de Volume por Seção: Exibe o volume total de cada tipo de bebida armazenado em cada seção.
 Cadastro de Tipos de Bebidas: Permite cadastrar novos tipos de bebidas, definindo a capacidade máxima de armazenamento e se há restrição de quarentena.
 Gerenciamento de Seções: Permite cadastrar, listar e deletar seções de armazenamento.
+Analise de Estoque com I.A. é um rascunho dessa ferramenta nova funcionalidade para insights rápidos de negócio em aplicações futuras;
+
+
 Tecnologias Utilizadas
 Backend: Spring Boot, Spring MVC, Spring Data JPA
 Banco de Dados: H2

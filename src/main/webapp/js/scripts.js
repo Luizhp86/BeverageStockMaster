@@ -775,27 +775,28 @@ function carregarTiposBebida() {
         });
 }
 function analisarEstoque() {
-    const historicoMovimentacao = {}; // Substitua com o objeto real de movimentação
-    const message = "Faça uma análise da movimentação de estoque e me responda em um texto simples sugestões de compras, melhorias ; resposta em JSON";
-
-    const requestPayload = {
-        message: message,
-        historicoMovimentacao: historicoMovimentacao
-    };
+    const message = "Faça uma análise da movimentação de estoque e me responda em um texto simples sugestões de compras, melhorias; resposta em JSON";
 
     fetch('/api/estoque/analise-estoque', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestPayload)
+        body: JSON.stringify({ message })
     })
         .then(response => response.json())
         .then(data => {
-            document.getElementById('analiseResultado').innerText = data.resultado;
+            console.log(data)
+            if (data.resultado) {
+                document.getElementById('analiseResultado').innerText = data.resultado;
+            } else {
+                document.getElementById('analiseResultado').innerText = 'Nenhuma análise disponível. Verifique se a API-KEY da OpenIA esta ativa';
+            }
+            $('#analiseModal').modal('show');
         })
         .catch(error => {
             console.error('Erro ao analisar o estoque:', error);
             document.getElementById('analiseResultado').innerText = 'Erro ao carregar a análise.';
+            $('#analiseModal').modal('show');
         });
 }
