@@ -12,6 +12,7 @@
 
     import java.time.LocalDate;
     import java.time.LocalDateTime;
+    import java.util.Comparator;
     import java.util.List;
     import java.util.Optional;
     import java.util.stream.Collectors;
@@ -157,18 +158,23 @@
                     .filter(secao -> {
                         List<Bebida> bebidas = bebidaRepository.findBySecaoId(secao.getId());
 
-                        // Soma a capacidade atual das bebidas na seção
-                        double capacidadeAtualTotal = bebidas.stream()
-                                .mapToDouble(Bebida::getVolume)
-                                .sum();
-
-                        // Calcula a capacidade máxima da seção
-                        double capacidadeMaxima = bebidas.stream()
-                                .map(bebida -> bebida.getTipoBebida().getCapacidadeMaxima())
-                                .findFirst() // Assume que todas as bebidas na seção têm o mesmo tipo de bebida
-                                .orElse(0.0);
-
-                        return (capacidadeMaxima - capacidadeAtualTotal) >= volume;
+                        if (bebidas.isEmpty()) {
+                            // Se a seção estiver vazia, utilizar o tipo de bebida com maior capacidade máxima
+                            TipoBebida maiorCapacidadeTipo = tipoBebidaRepository.findAll().stream()
+                                    .max(Comparator.comparingDouble(TipoBebida::getCapacidadeMaxima))
+                                    .orElseThrow(() -> new IllegalArgumentException("Nenhum tipo de bebida disponível."));
+                            secao.setCapacidadeDisponivel(maiorCapacidadeTipo.getCapacidadeMaxima());  // Definindo a capacidade disponível para o maior tipo
+                            return volume <= maiorCapacidadeTipo.getCapacidadeMaxima();
+                        } else {
+                            // Se a seção tiver bebidas, considerar a capacidade máxima do tipo de bebida presente na seção
+                            TipoBebida tipoBebidaNaSecao = bebidas.get(0).getTipoBebida();
+                            double capacidadeAtualTotal = bebidas.stream()
+                                    .mapToDouble(Bebida::getVolume)
+                                    .sum();
+                            double capacidadeDisponivel = tipoBebidaNaSecao.getCapacidadeMaxima() - capacidadeAtualTotal;
+                            secao.setCapacidadeDisponivel(capacidadeDisponivel);  // Definindo a capacidade disponível para a seção
+                            return capacidadeDisponivel >= volume;
+                        }
                     })
                     .collect(Collectors.toList());
         }

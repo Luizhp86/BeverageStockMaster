@@ -935,7 +935,6 @@
         }
 
 
-
         fetch(`/api/estoque/locais-disponiveis?volume=${volumeDesejado}`)
             .then(response => response.json())
             .then(data => {
@@ -953,9 +952,7 @@
                 data.forEach(secao => {
                     const item = document.createElement('li');
                     item.className = 'list-group-item';
-                    const capacidadeDisponivel = tipoBebidaId && secao.capacidadeMaxima
-                        ? (secao.capacidadeMaxima - secao.capacidadeAtual)
-                        : 'Capacidade não definida';
+                    const capacidadeDisponivel = secao.capacidadeDisponivel;  // Agora usamos a capacidadeDisponivel retornada pelo backend
                     item.innerText = `${secao.nome} - Capacidade Disponível: ${capacidadeDisponivel} litros`;
                     lista.appendChild(item);
                 });

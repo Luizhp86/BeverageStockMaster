@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.springframework.data.annotation.Transient;
 
 @Entity
 public class Secao {
@@ -13,6 +14,9 @@ public class Secao {
 
         private String nome;
         private double utilizacaoTotal;
+
+        @Transient
+        private double capacidadeDisponivel;  // Campo temporário para cálculo da capacidade disponível
 
         // Removido o campo tipoBebida
 
@@ -39,5 +43,13 @@ public class Secao {
 
         public void setUtilizacaoTotal(double utilizacaoTotal) {
                 this.utilizacaoTotal = utilizacaoTotal;
+        }
+
+        public double getCapacidadeDisponivel() {
+                return capacidadeDisponivel;
+        }
+
+        public void setCapacidadeDisponivel(double capacidadeDisponivel) {
+                this.capacidadeDisponivel = capacidadeDisponivel;
         }
 }
