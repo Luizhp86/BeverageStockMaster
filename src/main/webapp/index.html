@@ -20,6 +20,10 @@
     <a href="#" onclick="showQuantidadePorSecao()">Consulta do volume total no estoque por cada tipo de bebida</a>
     <a href="#" onclick="showConfigurarTipos()">Cadastrar Tipos de Bebidas</a>
     <a href="#" onclick="showGerenciarSecoes()">Cadastrar Seções</a>
+    <a href="#" onclick="analisarEstoque()">Análise de Estoque com I.A.</a>
+
+
+
 </div>
 <div class="content">
     <div id="dashboard" style="display:none;">
@@ -68,10 +72,29 @@
                 </div>
             </div>
         </div>
-        <div class="card mt-4 w-100 full-width-card">
+         <div class="card mt-4 w-100 full-width-card">
             <div class="card-body">
                 <h5 class="card-title text-uppercase font-weight-bold text-dark-green">Movimentações de Bebidas</h5>
                 <div id="movimentacaoHistorico"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="analiseModal" tabindex="-1" role="dialog" aria-labelledby="analiseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analiseModalLabel">Análise de Estoque com I.A.</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="analiseResultado">Carregando análise...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                </div>
             </div>
         </div>
     </div>

@@ -774,3 +774,28 @@ function carregarTiposBebida() {
             Swal.fire('Erro!', 'Ocorreu um erro ao carregar os tipos de bebida.', 'error');
         });
 }
+function analisarEstoque() {
+    const historicoMovimentacao = {}; // Substitua com o objeto real de movimentação
+    const message = "Faça uma análise da movimentação de estoque e me responda em um texto simples sugestões de compras, melhorias ; resposta em JSON";
+
+    const requestPayload = {
+        message: message,
+        historicoMovimentacao: historicoMovimentacao
+    };
+
+    fetch('/api/estoque/analise-estoque', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestPayload)
+    })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('analiseResultado').innerText = data.resultado;
+        })
+        .catch(error => {
+            console.error('Erro ao analisar o estoque:', error);
+            document.getElementById('analiseResultado').innerText = 'Erro ao carregar a análise.';
+        });
+}
