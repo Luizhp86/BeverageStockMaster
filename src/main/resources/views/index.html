@@ -235,6 +235,7 @@
         document.getElementById('dashboard').style.display = 'block';
         updateDashboard();
         updateMovimentacaoHistorico();
+        carregarTiposBebida();
     }
 
     function showRegisterForm() {
@@ -903,7 +904,6 @@
         carregarSecoes();
         carregarTiposBebida();
 
-
     });
 
     function consultarLocaisDisponiveis() {
@@ -989,7 +989,7 @@
             .then(response => response.json())
             .then(data => {
                 tipoBebidaSelect.innerHTML = '';
-
+                console.log(data);
                 if (data.length > 0) {
                     data.forEach(tipo => {
                         const option = document.createElement('option');
