@@ -18,6 +18,16 @@ public class Secao {
         @Transient
         private double capacidadeDisponivel;
 
+        @Transient
+        private transient String tipoBebidaUtilizada;
+
+        public String getTipoBebidaUtilizada() {
+                return tipoBebidaUtilizada;
+        }
+
+        public void setTipoBebidaUtilizada(String tipoBebidaUtilizada) {
+                this.tipoBebidaUtilizada = tipoBebidaUtilizada;
+        }
 
         public Long getId() {
                 return id;

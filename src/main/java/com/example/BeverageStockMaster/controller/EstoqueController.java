@@ -1,16 +1,18 @@
     package com.example.BeverageStockMaster.controller;
-    import com.example.BeverageStockMaster.domain.TipoBebida;
+    import com.example.BeverageStockMaster.domain.*;
     import com.example.BeverageStockMaster.repository.TipoBebidaRepository;
     import com.example.BeverageStockMaster.service.EstoqueService;
+    import com.example.BeverageStockMaster.service.HistoricoMovimentacaoService;
+    import com.example.BeverageStockMaster.service.OpenAiService;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
-    import com.example.BeverageStockMaster.domain.Bebida;
 
-    import com.example.BeverageStockMaster.domain.Secao;
-
+    import java.util.HashMap;
     import java.util.List;
+    import java.util.Map;
+
     @RestController
     @RequestMapping("/api/estoque")
     public class EstoqueController {
@@ -20,6 +22,12 @@
 
         @Autowired
         TipoBebidaRepository tipoBebidaRepository;
+
+        @Autowired
+        OpenAiService openAiService;
+
+        @Autowired
+        HistoricoMovimentacaoService historicoMovimentacaoService;
 
 
         @PostMapping("/entrada")
@@ -69,14 +77,16 @@
         }
 
         @GetMapping("/secoes")
-        public ResponseEntity<List<Secao>> consultarSecoesDisponiveis(@RequestParam Long tipoBebidaId, @RequestParam(required = false) Double volume) {
+        public ResponseEntity<List<Secao>> consultarSecoesDisponiveis(
+                @RequestParam(required = false) Long tipoBebidaId,
+                @RequestParam(required = false) Double volume) {
             try {
                 List<Secao> secoes;
 
-                if (volume != null) {
+                if (tipoBebidaId != null && volume != null) {
                     secoes = estoqueService.consultarSecoesDisponiveis(tipoBebidaId, volume);
                 } else {
-                    secoes = estoqueService.consultarTodasSecoes();  // Usando o novo método
+                    secoes = estoqueService.consultarTodasSecoes();
                 }
 
                 return ResponseEntity.ok(secoes);
@@ -125,5 +135,20 @@
         public ResponseEntity<List<Secao>> consultarSecoesDisponiveisParaVenda(@RequestParam Long tipoBebidaId) {
             List<Secao> secoesDisponiveis = estoqueService.consultarSecoesDisponiveisParaVenda(tipoBebidaId);
             return ResponseEntity.ok(secoesDisponiveis);
+        }
+
+        @PostMapping("/analise-estoque")
+        public ResponseEntity<?> analisarEstoque() {
+            List<HistoricoMovimentacao>  historicoMovimentacao = historicoMovimentacaoService.getHistoricoAgrupado();
+
+            MessageRequest messageRequest = new MessageRequest();
+
+            String message = messageRequest.montarMessage(historicoMovimentacao);
+            String resultado = openAiService.openAiChat(message);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("resultado", resultado);
+
+            return ResponseEntity.ok(response);
         }
     }

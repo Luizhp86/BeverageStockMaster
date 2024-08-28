@@ -4,6 +4,16 @@ Esta aplicação é um sistema de gestão de estoque de bebidas que permite regi
 
 Abra o navegador e acesse http://localhost:8080/.
 
+Considerações do desenvolvedor
+
+-A aplicação foi feita para validar as assertivas do teste via front-end, pois é uma aplicação de controle de estoque direcionada ao usuario final;
+-Quando uma seção estiver vazia a sua capacidade máxima será a do tipo de bebida com maior capacidade;
+-Tipos de bebidas e seções não podem ser deletados se houverem bebidas armazenadas;
+-Para a entrada de bebidas, o volume deve ser maior que zero;
+-Tipos de bebidas com restrição de quarentena não podem ser armazenados em seções com bebidas de outros tipos no mesmo dia caso ela tenha tido saídas até ficar vazia;
+-Restrição de quarentena = bebidas alcoolicas;
+
+
 
 Funcionalidades
 Dashboard: Exibe um resumo do estoque, incluindo volume total armazenado, quantidade de seções, e movimentações recentes.
@@ -27,11 +37,13 @@ controller/: Controladores REST que expõem as APIs para o frontend.
 domain/: Classes de domínio que representam as entidades do sistema.
 repository/: Interfaces de repositórios JPA para acesso ao banco de dados.
 service/: Contém a lógica de negócio da aplicação.
-src/main/resources/views/
+src/main/webapp/
 
 index.html: Página principal da aplicação.
 css/: Arquivos de estilo (CSS) utilizados no frontend.
 js/: Scripts JavaScript para manipulação de dados e interação com as APIs.
+assets/: imagens
+
 Configuração e Execução
 Pré-requisitos
 JDK 17+
