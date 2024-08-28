@@ -13,6 +13,7 @@
     import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.util.List;
+    import java.util.Optional;
     import java.util.stream.Collectors;
 
     @Service
@@ -39,12 +40,12 @@
                     .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
 
             // Verifica se o tipo de bebida respeita a capacidade máxima para este tipo
-            double novaCapacidadeAtual = secao.getCapacidadeAtual() + bebida.getVolume();
+            double novaCapacidadeAtual = secao.getUtilizacaoTotal() + bebida.getVolume();
             if (novaCapacidadeAtual > tipoBebida.getCapacidadeMaxima()) {
                 throw new IllegalArgumentException("Capacidade máxima para esse tipo de bebida excedida.");
             }
 
-            secao.setCapacidadeAtual(novaCapacidadeAtual);
+            secao.setUtilizacaoTotal(novaCapacidadeAtual);
             bebida.setSecao(secao);
             bebida.setDataEntrada(LocalDate.now());
             bebida.setResponsavel(responsavel);
@@ -69,8 +70,8 @@
             }
 
             // Atualizar a capacidade atual da seção
-            double novaCapacidadeAtual = secao.getCapacidadeAtual() - bebida.getVolume();
-            secao.setCapacidadeAtual(novaCapacidadeAtual);
+            double novaCapacidadeAtual = secao.getUtilizacaoTotal() - bebida.getVolume();
+            secao.setUtilizacaoTotal(novaCapacidadeAtual);
             bebidaRepository.delete(bebida);
             secaoRepository.save(secao);
 
@@ -106,7 +107,7 @@
                     .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
 
             return secaoRepository.findAll().stream()
-                    .filter(secao -> (secao.getCapacidadeAtual() + volume) <= tipoBebida.getCapacidadeMaxima())
+                    .filter(secao -> (secao.getUtilizacaoTotal() + volume) <= tipoBebida.getCapacidadeMaxima())
                     .collect(Collectors.toList());
         }
 
@@ -131,8 +132,8 @@
             Secao secao = bebida.getSecao();
             if (secao != null) {
                 // Atualizar a capacidade atual da seção
-                double novaCapacidadeAtual = secao.getCapacidadeAtual() - bebida.getVolume();
-                secao.setCapacidadeAtual(novaCapacidadeAtual);
+                double novaCapacidadeAtual = secao.getUtilizacaoTotal() - bebida.getVolume();
+                secao.setUtilizacaoTotal(novaCapacidadeAtual);
                 secaoRepository.save(secao);
             }
 
@@ -151,12 +152,24 @@
             return secaoRepository.findAll();
         }
 
-        public List<Secao> consultarLocaisDisponiveisParaVolume(Long tipoBebidaId, double volume) {
-            TipoBebida tipoBebida = tipoBebidaRepository.findById(tipoBebidaId)
-                    .orElseThrow(() -> new IllegalArgumentException("Tipo de Bebida não encontrado"));
-
+        public List<Secao> consultarLocaisDisponiveisParaVolume(double volume) {
             return secaoRepository.findAll().stream()
-                    .filter(secao -> (tipoBebida.getCapacidadeMaxima() - secao.getCapacidadeAtual()) >= volume)
+                    .filter(secao -> {
+                        List<Bebida> bebidas = bebidaRepository.findBySecaoId(secao.getId());
+
+                        // Soma a capacidade atual das bebidas na seção
+                        double capacidadeAtualTotal = bebidas.stream()
+                                .mapToDouble(Bebida::getVolume)
+                                .sum();
+
+                        // Calcula a capacidade máxima da seção
+                        double capacidadeMaxima = bebidas.stream()
+                                .map(bebida -> bebida.getTipoBebida().getCapacidadeMaxima())
+                                .findFirst() // Assume que todas as bebidas na seção têm o mesmo tipo de bebida
+                                .orElse(0.0);
+
+                        return (capacidadeMaxima - capacidadeAtualTotal) >= volume;
+                    })
                     .collect(Collectors.toList());
         }
 

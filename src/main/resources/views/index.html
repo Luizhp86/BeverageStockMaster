@@ -743,7 +743,7 @@
                     data.forEach(secao => {
                         const item = document.createElement('li');
                         item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                        item.textContent = `${secao.nome} - Capacidade Atual: ${secao.capacidadeAtual} litros`;
+                        item.textContent = `${secao.nome} - Utilização total: ${secao.utilizacaoTotal} litros`;
 
                         const deleteButton = document.createElement('button');
                         deleteButton.className = 'btn btn-danger btn-sm';
@@ -773,7 +773,7 @@
             },
             body: JSON.stringify({
                 nome: nomeSecao,
-                capacidadeAtual: 0 // Inicializa a capacidade atual como zero
+                utilizacaoTotal: 0 // Inicializa a capacidade atual como zero
             })
         })
             .then(response => response.text())
@@ -928,19 +928,15 @@
 
     function consultarLocaisDisponiveis() {
         const volumeDesejado = parseFloat(document.getElementById('volumeConsultaDashboard').value);
-        const tipoBebidaId = document.getElementById('tipoBebidaVenda').value; // Assumindo que há um campo select para escolher o tipo de bebida
 
         if (isNaN(volumeDesejado) || volumeDesejado <= 0) {
             Swal.fire('Erro!', 'Por favor, insira um volume válido.', 'error');
             return;
         }
 
-        if (!tipoBebidaId) {
-            Swal.fire('Erro!', 'Por favor, selecione um tipo de bebida.', 'error');
-            return;
-        }
 
-        fetch(`/api/estoque/locais-disponiveis?tipoBebidaId=${tipoBebidaId}&volume=${volumeDesejado}`)
+
+        fetch(`/api/estoque/locais-disponiveis?volume=${volumeDesejado}`)
             .then(response => response.json())
             .then(data => {
                 const resultadoConsulta = document.getElementById('resultadoConsultaLocais');

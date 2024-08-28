@@ -118,8 +118,8 @@ public class EstoqueController {
     }
 
     @GetMapping("/locais-disponiveis")
-    public ResponseEntity<List<Secao>> consultarLocaisDisponiveis(@RequestParam Long tipoBebidaId, @RequestParam double volume) {
-        List<Secao> secoesDisponiveis = estoqueService.consultarLocaisDisponiveisParaVolume(tipoBebidaId, volume);
+    public ResponseEntity<List<Secao>> consultarLocaisDisponiveis(@RequestParam double volume) {
+        List<Secao> secoesDisponiveis = estoqueService.consultarLocaisDisponiveisParaVolume(volume);
         return ResponseEntity.ok(secoesDisponiveis);
     }
 

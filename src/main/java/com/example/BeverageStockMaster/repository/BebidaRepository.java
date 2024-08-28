@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface BebidaRepository extends JpaRepository<Bebida, Long> {
     List<Bebida> findBySecao(Secao secao);
@@ -19,5 +20,7 @@ public interface BebidaRepository extends JpaRepository<Bebida, Long> {
     List<Object[]> findQuantidadePorSecaoETipo();
 
     boolean existsBySecaoIdAndTipoBebidaRestricaoQuarentenaAndDataEntrada(Long secaoId, boolean restricaoQuarentena, LocalDate dataEntrada);
+
+    List<Bebida> findBySecaoId(Long secaoId);
 
 }

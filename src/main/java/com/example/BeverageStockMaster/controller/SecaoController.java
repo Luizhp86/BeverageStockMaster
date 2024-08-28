@@ -24,7 +24,7 @@ public class SecaoController {
     @PostMapping("/nova")
     public ResponseEntity<String> criarSecao(@RequestBody Secao secao) {
         // Inicializa a capacidade atual como zero
-        secao.setCapacidadeAtual(0);
+        secao.setUtilizacaoTotal(0);
 
         // Salva a seção (sem capacidade máxima, pois isso agora é gerido pelo tipo de bebida)
         secaoRepository.save(secao);

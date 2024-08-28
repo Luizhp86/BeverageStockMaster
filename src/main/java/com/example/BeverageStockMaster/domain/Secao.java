@@ -12,7 +12,7 @@ public class Secao {
         private Long id;
 
         private String nome;
-        private double capacidadeAtual;
+        private double utilizacaoTotal;
 
         // Removido o campo tipoBebida
 
@@ -33,13 +33,11 @@ public class Secao {
                 this.nome = nome;
         }
 
-        public double getCapacidadeAtual() {
-                return capacidadeAtual;
+        public double getUtilizacaoTotal() {
+                return utilizacaoTotal;
         }
 
-        public void setCapacidadeAtual(double capacidadeAtual) {
-                this.capacidadeAtual = capacidadeAtual;
+        public void setUtilizacaoTotal(double utilizacaoTotal) {
+                this.utilizacaoTotal = utilizacaoTotal;
         }
-
-
 }
