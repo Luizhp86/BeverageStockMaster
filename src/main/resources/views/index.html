@@ -626,6 +626,7 @@
                     language: {
                         url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/Portuguese.json'  // Para exibir em português
                     },
+                    searching: false,  // Desabilita o campo de busca
                     initComplete: function () {
                         this.api().columns([1, 3]).every(function () {
                             var column = this;
@@ -669,7 +670,7 @@
 
                         // Coluna para a descrição do tipo de bebida
                         const descricaoCell = document.createElement('td');
-                        descricaoCell.textContent = tipo.descricao;
+                        descricaoCell.textContent = tipo.descricao;searching: false,
                         row.appendChild(descricaoCell);
 
                         // Coluna para o atributo restricaoQuarentena
@@ -796,9 +797,9 @@
             })
         })
             .then(response => response.text())
-            .then(message => {deletar
+            .then(message => {
                 Swal.fire('Sucesso!', message, 'success');
-                carregarSecoes();
+                carregarSecoes(); // Carrega as seções existentes
             })
             .catch(error => console.error("Erro ao adicionar seção:", error));
     }
